@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>クリエイターEXPO AI | by GROW UP</title>
+  <style>
+    :root {
+      --yellow: #FFF100;
+      --yellow-dim: rgba(255, 241, 0, 0.12);
+      --yellow-glow: rgba(255, 241, 0, 0.25);
+      --black: #000000;
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-card: #1a1a1a;
+      --bg-card-hover: #222222;
+      --border: #2a2a2a;
+      --border-yellow: rgba(255, 241, 0, 0.4);
+      --text-primary: #ffffff;
+      --text-secondary: #888888;
+      --text-muted: #555555;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      background: var(--bg-primary);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-primary);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header svg { height: 22px; width: auto; }
+
+    .header-badge {
+      background: var(--yellow-dim);
+      border: 1px solid var(--border-yellow);
+      color: var(--yellow);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Screen system ── */
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .screen.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── TOP screen ── */
+    .top-hero {
+      padding: 40px 24px 32px;
+      text-align: center;
+    }
+
+    .top-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--yellow);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .top-title {
+      font-size: 26px;
+      font-weight: 900;
+      line-height: 1.3;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .top-title span { color: var(--yellow); }
+
+    .top-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .top-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 4px 24px;
+    }
+
+    .feature-cards {
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--yellow);
+      transform: scaleX(0);
+      transition: transform 0.2s ease;
+    }
+
+    .feature-card:hover {
+      border-color: var(--border-yellow);
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+    }
+
+    .feature-card:hover::before { transform: scaleX(1); }
+
+    .feature-card:active { transform: translateY(0); }
+
+    .card-num {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: var(--yellow);
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .card-arrow {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--yellow);
+      font-size: 18px;
+      opacity: 0.7;
+    }
+
+    .top-footer-note {
+      padding: 20px 24px 32px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    /* ── Question screens ── */
+    .q-header {
+      padding: 24px 24px 16px;
+    }
+
+    .q-progress {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .q-progress-dot {
+      flex: 1;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      transition: background 0.3s;
+    }
+
+    .q-progress-dot.active { background: var(--yellow); }
+
+    .q-back {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+
+    .q-back:hover { color: var(--text-primary); }
+
+    .q-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--yellow);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .q-title {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+    }
+
+    .q-options {
+      padding: 8px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .q-opt {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .q-opt:hover {
+      border-color: var(--border-yellow);
+      background: var(--bg-card-hover);
+    }
+
+    .q-opt.selected {
+      border-color: var(--yellow);
+      background: var(--yellow-dim);
+    }
+
+    .q-opt-text { font-size: 15px; font-weight: 600; }
+    .q-opt-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+    .q-opt-check {
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .q-opt.selected .q-opt-check {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: var(--black);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .q-bottom {
+      padding: 16px 20px 32px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      background: var(--yellow);
+      color: var(--black);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-primary:hover { background: #ffe800; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled {
+      background: var(--border);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── Loading ── */
+    .loading-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 40px;
+    }
+
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--border);
+      border-top-color: var(--yellow);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .loading-text strong { color: var(--yellow); display: block; font-size: 16px; margin-bottom: 6px; }
+
+    /* ── Route Result ── */
+    .result-header {
+      padding: 24px 24px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--yellow);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .result-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .result-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .result-meta span { display: flex; align-items: center; gap: 4px; }
+
+    .route-list {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .route-booth {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .booth-num-badge {
+      width: 36px;
+      height: 36px;
+      background: var(--yellow);
+      color: var(--black);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .booth-info { flex: 1; }
+
+    .booth-code {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--yellow);
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .booth-name {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .booth-genre {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .booth-reason {
+      font-size: 12px;
+      color: var(--text-primary);
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .booth-hint {
+      background: var(--yellow-dim);
+      border-left: 2px solid var(--yellow);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .booth-hint strong { color: var(--yellow); font-size: 10px; display: block; margin-bottom: 2px; letter-spacing: 0.08em; }
+
+    .result-actions {
+      padding: 16px 20px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      color: var(--text-primary);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary:hover { border-color: var(--border-yellow); color: var(--yellow); }
+
+    /* ── Chat screen ── */
+    .chat-header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chat-header-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .chat-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--yellow-dim);
+      border: 1px solid var(--border-yellow);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .chat-title-block .chat-title { font-size: 16px; font-weight: 800; }
+    .chat-title-block .chat-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+    .chat-progress-bar {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .chat-progress-fill {
+      height: 100%;
+      background: var(--yellow);
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scroll-behavior: smooth;
+    }
+
+    .msg {
+      max-width: 85%;
+      animation: msgIn 0.2s ease;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-ai { align-self: flex-start; }
+    .msg-user { align-self: flex-end; }
+
+    .msg-bubble {
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .msg-ai .msg-bubble {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg-user .msg-bubble {
+      background: var(--yellow);
+      color: var(--black);
+      border-bottom-right-radius: 4px;
+      font-weight: 600;
+    }
+
+    .msg-typing .msg-bubble {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 14px;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: typingBounce 1.2s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+      0%, 100% { transform: translateY(0); opacity: 0.5; }
+      50% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    .chat-input-area {
+      padding: 12px 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-size: 14px;
+      padding: 12px 14px;
+      resize: none;
+      min-height: 44px;
+      max-height: 120px;
+      line-height: 1.5;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--border-yellow);
+    }
+
+    .chat-input::placeholder { color: var(--text-muted); }
+
+    .chat-send {
+      width: 44px;
+      height: 44px;
+      background: var(--yellow);
+      color: var(--black);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .chat-send:hover { background: #ffe800; }
+    .chat-send:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+
+    .brief-ready-banner {
+      margin: 0 16px;
+      background: var(--yellow-dim);
+      border: 1px solid var(--border-yellow);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brief-ready-text { font-size: 13px; color: var(--yellow); font-weight: 600; line-height: 1.4; }
+    .brief-ready-text small { display: block; font-size: 11px; color: var(--text-secondary); font-weight: 400; margin-top: 2px; }
+
+    .btn-brief-generate {
+      background: var(--yellow);
+      color: var(--black);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .btn-brief-generate:hover { background: #ffe800; }
+
+    /* ── Brief Result ── */
+    .brief-result-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .brief-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .brief-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--yellow);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .brief-section-value {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-primary);
+    }
+
+    .brief-tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .brief-tag {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .brief-project-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    /* ── Error / Limit ── */
+    .error-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      text-align: center;
+      gap: 16px;
+    }
+
+    .error-icon { font-size: 40px; }
+    .error-title { font-size: 20px; font-weight: 800; }
+    .error-msg { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+    .error-sub { font-size: 12px; color: var(--text-muted); line-height: 1.7; }
+
+    /* ── Footer ── */
+    footer {
+      padding: 24px 20px 32px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    footer svg { height: 18px; width: auto; opacity: 0.5; margin-bottom: 8px; }
+    footer p { font-size: 11px; color: var(--text-muted); line-height: 1.8; }
+
+    /* ── Utilities ── */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <svg width="207" height="43" viewBox="0 0 207 43" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#h1)"><path d="M73.4754 30.7195C71.4673 32.7804 69.0988 33.5532 66.4471 33.5532C63.7954 33.5532 61.4784 32.5743 59.7277 30.8226C57.2047 28.298 57.282 25.181 57.282 20.8789C57.282 16.5769 57.2047 13.4599 59.7277 10.9353C61.4784 9.18359 63.6409 8.20468 66.4471 8.20468C72.2139 8.20468 75.1488 11.9915 75.8182 16.1905H70.9267C70.3603 13.8463 68.9443 12.5582 66.4471 12.5582C65.1084 12.5582 64.0271 13.0735 63.332 13.8978C62.3794 14.954 62.1477 16.1132 62.1477 20.9047C62.1477 25.6962 62.4052 26.8812 63.332 27.9374C64.0271 28.736 65.1084 29.2254 66.4471 29.2254C67.9145 29.2254 69.0988 28.7102 69.9226 27.8343C70.7207 26.9327 71.0554 25.7992 71.0554 24.5112V23.5581H66.4728V19.4879H75.8954V23.1459C75.8954 26.7524 75.2775 28.9163 73.5269 30.7453L73.4754 30.7195Z" fill="white"/><path d="M94.0197 33.3471L89.154 23.4035H85.6527V33.3471H80.7869V8.41074H90.5442C95.6159 8.41074 98.628 11.8884 98.628 16.0359C98.628 19.5394 96.4912 21.7033 94.0712 22.5791L99.6321 33.3213H93.994L94.0197 33.3471ZM90.2352 12.7385H85.6527V19.3333H90.2352C92.372 19.3333 93.7623 17.968 93.7623 16.0359C93.7623 14.1039 92.372 12.7385 90.2352 12.7385Z" fill="white"/><path d="M118.76 30.8226C117.01 32.5743 114.873 33.5532 112.041 33.5532C109.209 33.5532 107.046 32.5743 105.296 30.8226C102.773 28.298 102.85 25.181 102.85 20.879C102.85 16.5769 102.773 13.4599 105.296 10.9353C107.046 9.1836 109.209 8.2047 112.041 8.2047C114.873 8.2047 117.01 9.1836 118.76 10.9353C121.283 13.4599 121.232 16.5769 121.232 20.879C121.232 25.181 121.257 28.298 118.76 30.8226ZM115.156 13.8721C114.461 13.0735 113.38 12.5325 112.041 12.5325C110.702 12.5325 109.595 13.0477 108.9 13.8721C107.947 14.9282 107.716 16.0875 107.716 20.879C107.716 25.6705 107.947 26.8297 108.9 27.8859C109.595 28.6845 110.728 29.2254 112.041 29.2254C113.354 29.2254 114.461 28.7102 115.156 27.8859C116.108 26.8297 116.366 25.6705 116.366 20.879C116.366 16.0875 116.083 14.9282 115.156 13.8721Z" fill="white"/><path d="M147.466 33.3471H143.398L138.815 18.2256L134.233 33.3471H130.165L123.523 8.41074H128.595L132.456 24.1248L137.013 8.41074H140.643L145.2 24.1248L149.088 8.41074H154.159L147.466 33.3471Z" fill="white"/><path d="M174.189 33.5532C169.091 33.5532 165.023 30.0755 165.023 24.7945V8.41074H169.889V24.6142C169.889 27.4994 171.563 29.1996 174.189 29.1996C176.815 29.1996 178.539 27.4737 178.539 24.6142V8.41074H183.379V24.7945C183.379 30.0755 179.312 33.5532 174.214 33.5532H174.189Z" fill="white"/><path d="M198.44 23.9444H193.652V33.3213H188.786V8.41074H198.44C203.589 8.41074 206.678 11.94 206.678 16.1905C206.678 20.441 203.589 23.9702 198.44 23.9702V23.9444ZM198.183 12.7385H193.626V19.5651H198.183C200.397 19.5651 201.787 18.1998 201.787 16.1647C201.787 14.1296 200.397 12.7385 198.183 12.7385Z" fill="white"/><path d="M42.7877 5.73165C42.7877 2.58885 40.239 0.0643005 37.1239 0.0643005C34.0087 0.0643005 31.46 2.61461 31.46 5.73165C31.46 8.8487 34.0087 11.399 37.1239 11.399C40.239 11.399 42.7877 8.8487 42.7877 5.73165Z" fill="white"/><path d="M42.7878 21.4715C42.7878 18.3287 40.2391 15.7784 37.1239 15.7784C34.0088 15.7784 31.4601 18.3287 31.4601 21.4715C31.4601 24.6143 34.0088 27.1388 37.1239 27.1388C40.2391 27.1388 42.7878 24.5885 42.7878 21.4715Z" fill="white"/><path d="M27.0835 5.73165C27.0835 2.58885 24.5348 0.0643005 21.4197 0.0643005C18.3046 0.0643005 15.7558 2.61461 15.7558 5.73165C15.7558 8.8487 18.2788 11.399 21.4197 11.399C24.5605 11.399 27.0835 8.8487 27.0835 5.73165Z" fill="white"/><path d="M27.0835 21.4715C27.0835 18.3287 24.5348 15.7784 21.4197 15.7784C18.3046 15.7784 15.7559 18.3287 15.7559 21.4715C15.7559 24.6143 18.2788 27.1388 21.4197 27.1388C24.5605 27.1388 27.0835 24.5885 27.0835 21.4715Z" fill="#FFF100"/><path d="M11.3535 21.4715C11.3535 18.3287 8.80475 15.7784 5.68964 15.7784C2.57453 15.7784 6.10352e-05 18.3287 6.10352e-05 21.4715C6.10352e-05 24.6143 2.54879 27.1388 5.68964 27.1388C8.8305 27.1388 11.3535 24.5885 11.3535 21.4715Z" fill="white"/><path d="M11.3535 37.2112C11.3535 34.0684 8.80481 31.5181 5.6897 31.5181C2.57459 31.5181 0.00012207 34.0684 0.00012207 37.2112C0.00012207 40.354 2.54885 42.8786 5.6897 42.8786C8.83056 42.8786 11.3535 40.3283 11.3535 37.2112Z" fill="white"/></g><defs><clipPath id="h1"><rect width="207" height="42.8786" fill="white"/></clipPath></defs></svg>
+    <span class="header-badge">AI × クリエイターEXPO</span>
+  </header>
+
+  <!-- TOP -->
+  <div id="screen-top" class="screen active">
+    <div class="top-hero">
+      <p class="top-eyebrow">Creator EXPO 2026 × AI</p>
+      <h1 class="top-title">クリエイターEXPOを<br><span>AI化</span>してみた！</h1>
+      <p class="top-sub">GROWUPが仕掛ける、展示会×AIの体験。<br>2つのAIツールでEXPOをもっと楽しく。</p>
+    </div>
+    <div class="top-divider"></div>
+    <div class="feature-cards">
+      <div class="feature-card" onclick="startRoute()">
+        <p class="card-num">FEATURE 01</p>
+        <p class="card-title">AI 回遊ルート生成</p>
+        <p class="card-desc">業種・目的・時間を入力するだけで、<br>AIが最適なブース巡りルートを提案。</p>
+        <span class="card-arrow">→</span>
+      </div>
+      <div class="feature-card" onclick="startBrief()">
+        <p class="card-num">FEATURE 02</p>
+        <p class="card-title">AI クリエイティブブリーフ作成</p>
+        <p class="card-desc">「なんとなくこんな感じ」をチャットで話すと、<br>AIがプロ仕様の制作要件書に変換。</p>
+        <span class="card-arrow">→</span>
+      </div>
+    </div>
+    <p class="top-footer-note">本日の残り利用枠: <span id="top-remain-count">確認中...</span><br>※ 1日10名限定の体験コンテンツです</p>
+  </div>
+
+  <!-- Q1: 業種 -->
+  <div id="screen-q1" class="screen">
+    <div class="q-header">
+      <div class="q-progress">
+        <div class="q-progress-dot active"></div>
+        <div class="q-progress-dot"></div>
+        <div class="q-progress-dot"></div>
+      </div>
+      <button class="q-back" onclick="showScreen('top')">← 戻る</button>
+      <p class="q-label">Question 1/3</p>
+      <h2 class="q-title">あなたの業種は？</h2>
+    </div>
+    <div class="q-options" id="q1-options">
+      <div class="q-opt" onclick="selectQ1(this, 'Web・デジタル制作')">
+        <div><p class="q-opt-text">Web・デジタル制作</p><p class="q-opt-sub">Webデザイン、UI/UX、フロントエンド</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ1(this, 'ブランディング・広告')">
+        <div><p class="q-opt-text">ブランディング・広告</p><p class="q-opt-sub">PR、マーケティング、広告代理店</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ1(this, '映像・写真・イラスト')">
+        <div><p class="q-opt-text">映像・写真・イラスト</p><p class="q-opt-sub">映像制作、フォトグラファー、イラストレーター</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ1(this, '印刷・紙媒体')">
+        <div><p class="q-opt-text">印刷・紙媒体</p><p class="q-opt-sub">DTP、印刷会社、出版</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ1(this, '事業会社・インハウス')">
+        <div><p class="q-opt-text">事業会社・インハウス</p><p class="q-opt-sub">メーカー、小売、サービス業のデザイナー</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ1(this, 'フリーランス')">
+        <div><p class="q-opt-text">フリーランス</p><p class="q-opt-sub">個人クリエイター、独立系デザイナー</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ1(this, 'その他')">
+        <div><p class="q-opt-text">その他・まだ決めていない</p><p class="q-opt-sub">学生、転職検討中など</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+    </div>
+    <div class="q-bottom">
+      <button class="btn-primary" id="q1-next" disabled onclick="showScreen('q2')">次へ →</button>
+    </div>
+  </div>
+
+  <!-- Q2: 目的 -->
+  <div id="screen-q2" class="screen">
+    <div class="q-header">
+      <div class="q-progress">
+        <div class="q-progress-dot active"></div>
+        <div class="q-progress-dot active"></div>
+        <div class="q-progress-dot"></div>
+      </div>
+      <button class="q-back" onclick="showScreen('q1')">← 戻る</button>
+      <p class="q-label">Question 2/3</p>
+      <h2 class="q-title">今日の目的は？</h2>
+    </div>
+    <div class="q-options" id="q2-options">
+      <div class="q-opt" onclick="selectQ2(this, '外注先・パートナー探し')">
+        <div><p class="q-opt-text">外注先・パートナー探し</p><p class="q-opt-sub">発注できる制作会社やクリエイター</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ2(this, 'トレンド収集・情報収集')">
+        <div><p class="q-opt-text">トレンド収集・情報収集</p><p class="q-opt-sub">最新技術や業界動向を知りたい</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ2(this, '転職・キャリア検討')">
+        <div><p class="q-opt-text">転職・キャリア検討</p><p class="q-opt-sub">制作会社の雰囲気や求人情報</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ2(this, '新しいスキルや技術の習得')">
+        <div><p class="q-opt-text">新しいスキル・技術の習得</p><p class="q-opt-sub">AI・3D・ARなど新技術に興味</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ2(this, '人脈づくり・ネットワーキング')">
+        <div><p class="q-opt-text">人脈づくり・ネットワーキング</p><p class="q-opt-sub">業界の人と繋がりたい</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ2(this, 'なんとなく見て回りたい')">
+        <div><p class="q-opt-text">なんとなく見て回りたい</p><p class="q-opt-sub">気になるものを探しながら</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+    </div>
+    <div class="q-bottom">
+      <button class="btn-primary" id="q2-next" disabled onclick="showScreen('q3')">次へ →</button>
+    </div>
+  </div>
+
+  <!-- Q3: 滞在時間 -->
+  <div id="screen-q3" class="screen">
+    <div class="q-header">
+      <div class="q-progress">
+        <div class="q-progress-dot active"></div>
+        <div class="q-progress-dot active"></div>
+        <div class="q-progress-dot active"></div>
+      </div>
+      <button class="q-back" onclick="showScreen('q2')">← 戻る</button>
+      <p class="q-label">Question 3/3</p>
+      <h2 class="q-title">滞在予定時間は？</h2>
+    </div>
+    <div class="q-options" id="q3-options">
+      <div class="q-opt" onclick="selectQ3(this, '30分以内')">
+        <div><p class="q-opt-text">30分以内</p><p class="q-opt-sub">サクッと要点だけ</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ3(this, '1時間程度')">
+        <div><p class="q-opt-text">1時間程度</p><p class="q-opt-sub">気になるブースに絞って</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ3(this, '2時間程度')">
+        <div><p class="q-opt-text">2時間程度</p><p class="q-opt-sub">じっくり見て回る</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ3(this, '3時間以上')">
+        <div><p class="q-opt-text">3時間以上・終日</p><p class="q-opt-sub">セミナーも含めてフル活用</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+    </div>
+    <div class="q-bottom">
+      <button class="btn-primary" id="q3-next" disabled onclick="generateRoute()">ルートをAI生成 →</button>
+    </div>
+  </div>
+
+  <!-- Loading: ルート生成中 -->
+  <div id="screen-loading-route" class="screen">
+    <div class="loading-screen">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">
+        <strong>AIがルートを生成中...</strong>
+        あなたのプロフィールに合わせて<br>最適なブース順を計算しています。
+      </div>
+    </div>
+  </div>
+
+  <!-- Route Result -->
+  <div id="screen-route-result" class="screen">
+    <div class="result-header">
+      <p class="result-tag">AI 回遊ルート</p>
+      <h2 class="result-title" id="route-title">-</h2>
+      <p style="font-size:13px;color:var(--text-secondary);margin:6px 0 10px;" id="route-summary">-</p>
+      <div class="result-meta">
+        <span>🕐 <span id="route-total-time">-</span></span>
+        <span>📍 <span id="route-booth-count">-</span>ブース</span>
+      </div>
+    </div>
+    <div class="route-list" id="route-list"></div>
+    <div class="result-actions">
+      <button class="btn-primary" onclick="startBrief()">AIブリーフ作成へ →</button>
+      <button class="btn-secondary" onclick="showScreen('top')">TOPに戻る</button>
+    </div>
+  </div>
+
+  <!-- Chat (Brief) -->
+  <div id="screen-chat" class="screen">
+    <div class="chat-header">
+      <div class="chat-header-top">
+        <div class="chat-icon">✦</div>
+        <div class="chat-title-block">
+          <p class="chat-title">AIクリエイティブブリーフ</p>
+          <p class="chat-sub">チャットで話すだけでブリーフを作成</p>
+        </div>
+      </div>
+      <div class="chat-progress-bar">
+        <div class="chat-progress-fill" id="chat-progress" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div id="brief-ready-banner" class="brief-ready-banner hidden">
+      <div class="brief-ready-text">
+        ブリーフ作成の準備ができました
+        <small>タップしてPDF形式で出力できます</small>
+      </div>
+      <button class="btn-brief-generate" onclick="generateBrief()">作成する</button>
+    </div>
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chat-input" placeholder="メッセージを入力..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="chat-send" id="chat-send-btn" onclick="sendMessage()">↑</button>
+    </div>
+  </div>
+
+  <!-- Loading: ブリーフ生成中 -->
+  <div id="screen-loading-brief" class="screen">
+    <div class="loading-screen">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">
+        <strong>AIがブリーフを生成中...</strong>
+        会話内容をもとにプロ仕様の<br>クリエイティブブリーフを作成しています。
+      </div>
+    </div>
+  </div>
+
+  <!-- Brief Result -->
+  <div id="screen-brief-result" class="screen">
+    <div class="result-header">
+      <p class="result-tag">クリエイティブブリーフ</p>
+      <h2 class="brief-project-title" id="brief-project-title">-</h2>
+    </div>
+    <div class="brief-result-content" id="brief-result-content"></div>
+    <div class="result-actions">
+      <button class="btn-primary" onclick="restartBrief()">もう一度ブリーフを作成</button>
+      <button class="btn-secondary" onclick="showScreen('top')">TOPに戻る</button>
+    </div>
+  </div>
+
+  <!-- Error screen -->
+  <div id="screen-error" class="screen">
+    <div class="error-screen">
+      <div class="error-icon">⚠️</div>
+      <h2 class="error-title" id="error-title">エラーが発生しました</h2>
+      <p class="error-msg" id="error-msg">しばらく待ってから再度お試しください。</p>
+      <p class="error-sub" id="error-sub"></p>
+      <button class="btn-secondary" style="max-width:200px;margin-top:8px;" onclick="showScreen('top')">TOPに戻る</button>
+    </div>
+  </div>
+
+  <footer>
+    <svg width="207" height="43" viewBox="0 0 207 43" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#f1)"><path d="M73.4754 30.7195C71.4673 32.7804 69.0988 33.5532 66.4471 33.5532C63.7954 33.5532 61.4784 32.5743 59.7277 30.8226C57.2047 28.298 57.282 25.181 57.282 20.8789C57.282 16.5769 57.2047 13.4599 59.7277 10.9353C61.4784 9.18359 63.6409 8.20468 66.4471 8.20468C72.2139 8.20468 75.1488 11.9915 75.8182 16.1905H70.9267C70.3603 13.8463 68.9443 12.5582 66.4471 12.5582C65.1084 12.5582 64.0271 13.0735 63.332 13.8978C62.3794 14.954 62.1477 16.1132 62.1477 20.9047C62.1477 25.6962 62.4052 26.8812 63.332 27.9374C64.0271 28.736 65.1084 29.2254 66.4471 29.2254C67.9145 29.2254 69.0988 28.7102 69.9226 27.8343C70.7207 26.9327 71.0554 25.7992 71.0554 24.5112V23.5581H66.4728V19.4879H75.8954V23.1459C75.8954 26.7524 75.2775 28.9163 73.5269 30.7453L73.4754 30.7195Z" fill="white"/><path d="M94.0197 33.3471L89.154 23.4035H85.6527V33.3471H80.7869V8.41074H90.5442C95.6159 8.41074 98.628 11.8884 98.628 16.0359C98.628 19.5394 96.4912 21.7033 94.0712 22.5791L99.6321 33.3213H93.994L94.0197 33.3471ZM90.2352 12.7385H85.6527V19.3333H90.2352C92.372 19.3333 93.7623 17.968 93.7623 16.0359C93.7623 14.1039 92.372 12.7385 90.2352 12.7385Z" fill="white"/><path d="M118.76 30.8226C117.01 32.5743 114.873 33.5532 112.041 33.5532C109.209 33.5532 107.046 32.5743 105.296 30.8226C102.773 28.298 102.85 25.181 102.85 20.879C102.85 16.5769 102.773 13.4599 105.296 10.9353C107.046 9.1836 109.209 8.2047 112.041 8.2047C114.873 8.2047 117.01 9.1836 118.76 10.9353C121.283 13.4599 121.232 16.5769 121.232 20.879C121.232 25.181 121.257 28.298 118.76 30.8226ZM115.156 13.8721C114.461 13.0735 113.38 12.5325 112.041 12.5325C110.702 12.5325 109.595 13.0477 108.9 13.8721C107.947 14.9282 107.716 16.0875 107.716 20.879C107.716 25.6705 107.947 26.8297 108.9 27.8859C109.595 28.6845 110.728 29.2254 112.041 29.2254C113.354 29.2254 114.461 28.7102 115.156 27.8859C116.108 26.8297 116.366 25.6705 116.366 20.879C116.366 16.0875 116.083 14.9282 115.156 13.8721Z" fill="white"/><path d="M147.466 33.3471H143.398L138.815 18.2256L134.233 33.3471H130.165L123.523 8.41074H128.595L132.456 24.1248L137.013 8.41074H140.643L145.2 24.1248L149.088 8.41074H154.159L147.466 33.3471Z" fill="white"/><path d="M174.189 33.5532C169.091 33.5532 165.023 30.0755 165.023 24.7945V8.41074H169.889V24.6142C169.889 27.4994 171.563 29.1996 174.189 29.1996C176.815 29.1996 178.539 27.4737 178.539 24.6142V8.41074H183.379V24.7945C183.379 30.0755 179.312 33.5532 174.214 33.5532H174.189Z" fill="white"/><path d="M198.44 23.9444H193.652V33.3213H188.786V8.41074H198.44C203.589 8.41074 206.678 11.94 206.678 16.1905C206.678 20.441 203.589 23.9702 198.44 23.9702V23.9444ZM198.183 12.7385H193.626V19.5651H198.183C200.397 19.5651 201.787 18.1998 201.787 16.1647C201.787 14.1296 200.397 12.7385 198.183 12.7385Z" fill="white"/><path d="M42.7877 5.73165C42.7877 2.58885 40.239 0.0643005 37.1239 0.0643005C34.0087 0.0643005 31.46 2.61461 31.46 5.73165C31.46 8.8487 34.0087 11.399 37.1239 11.399C40.239 11.399 42.7877 8.8487 42.7877 5.73165Z" fill="white"/><path d="M42.7878 21.4715C42.7878 18.3287 40.2391 15.7784 37.1239 15.7784C34.0088 15.7784 31.4601 18.3287 31.4601 21.4715C31.4601 24.6143 34.0088 27.1388 37.1239 27.1388C40.2391 27.1388 42.7878 24.5885 42.7878 21.4715Z" fill="white"/><path d="M27.0835 5.73165C27.0835 2.58885 24.5348 0.0643005 21.4197 0.0643005C18.3046 0.0643005 15.7558 2.61461 15.7558 5.73165C15.7558 8.8487 18.2788 11.399 21.4197 11.399C24.5605 11.399 27.0835 8.8487 27.0835 5.73165Z" fill="white"/><path d="M27.0835 21.4715C27.0835 18.3287 24.5348 15.7784 21.4197 15.7784C18.3046 15.7784 15.7559 18.3287 15.7559 21.4715C15.7559 24.6143 18.2788 27.1388 21.4197 27.1388C24.5605 27.1388 27.0835 24.5885 27.0835 21.4715Z" fill="#FFF100"/><path d="M11.3535 21.4715C11.3535 18.3287 8.80475 15.7784 5.68964 15.7784C2.57453 15.7784 6.10352e-05 18.3287 6.10352e-05 21.4715C6.10352e-05 24.6143 2.54879 27.1388 5.68964 27.1388C8.8305 27.1388 11.3535 24.5885 11.3535 21.4715Z" fill="white"/><path d="M11.3535 37.2112C11.3535 34.0684 8.80481 31.5181 5.6897 31.5181C2.57459 31.5181 0.00012207 34.0684 0.00012207 37.2112C0.00012207 40.354 2.54885 42.8786 5.6897 42.8786C8.83056 42.8786 11.3535 40.3283 11.3535 37.2112Z" fill="white"/></g><defs><clipPath id="f1"><rect width="207" height="42.8786" fill="white"/></clipPath></defs></svg>
+    <p>クリエイターEXPO 2026 × AI体験<br>© GROW UP — Produced with Claude AI</p>
+  </footer>
+</div>
+
+<script>
+// ─── State ──────────────────────────────────────────────────────
+let sessionId = null
+let answers = { industry: null, purpose: null, duration: null }
+let chatHistory = []
+let briefReady = false
+let isStreaming = false
+
+// ─── Session Init ────────────────────────────────────────────────
+function getOrCreateSessionId() {
+  let id = localStorage.getItem('crex_session_id')
+  if (!id) {
+    id = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9)
+    localStorage.setItem('crex_session_id', id)
+  }
+  return id
+}
+
+async function initSession() {
+  sessionId = getOrCreateSessionId()
+  try {
+    const res = await fetch('/api/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId })
+    })
+    const data = await res.json()
+    const remainEl = document.getElementById('top-remain-count')
+    if (res.ok) {
+      const remain = 10 - data.count
+      remainEl.textContent = remain > 0 ? `残り ${remain} 枠` : '本日満員'
+    } else if (res.status === 429) {
+      remainEl.textContent = '本日満員（明日またお試しください）'
+    }
+  } catch (e) {
+    document.getElementById('top-remain-count').textContent = '取得できませんでした'
+  }
+}
+
+// ─── Screen Navigation ───────────────────────────────────────────
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
+  document.getElementById('screen-' + name).classList.add('active')
+}
+
+function showError(title, msg, sub = '') {
+  document.getElementById('error-title').textContent = title
+  document.getElementById('error-msg').textContent = msg
+  document.getElementById('error-sub').textContent = sub
+  showScreen('error')
+}
+
+// ─── Feature Entry ────────────────────────────────────────────────
+function startRoute() {
+  answers = { industry: null, purpose: null, duration: null }
+  document.querySelectorAll('.q-opt').forEach(o => o.classList.remove('selected'))
+  document.getElementById('q1-next').disabled = true
+  document.getElementById('q2-next').disabled = true
+  document.getElementById('q3-next').disabled = true
+  showScreen('q1')
+}
+
+function startBrief() {
+  chatHistory = []
+  briefReady = false
+  document.getElementById('chat-messages').innerHTML = ''
+  document.getElementById('chat-progress').style.width = '0%'
+  document.getElementById('brief-ready-banner').classList.add('hidden')
+  document.getElementById('chat-input').value = ''
+  showScreen('chat')
+  // AIから最初のメッセージを送信
+  addAIMessage('こんにちは！AIクリエイティブブリーフ作成ツールです 🎨\n\nどんなデザイン制作のご依頼をお考えですか？\n「なんとなくこんな感じ」でOKです。まずは作りたいものを教えてください！')
+}
+
+// ─── Q1 ──────────────────────────────────────────────────────────
+function selectQ1(el, value) {
+  document.querySelectorAll('#q1-options .q-opt').forEach(o => o.classList.remove('selected'))
+  el.classList.add('selected')
+  el.querySelector('.q-opt-check').textContent = '✓'
+  document.querySelectorAll('#q1-options .q-opt:not(.selected) .q-opt-check').forEach(c => c.textContent = '')
+  answers.industry = value
+  document.getElementById('q1-next').disabled = false
+}
+
+function selectQ2(el, value) {
+  document.querySelectorAll('#q2-options .q-opt').forEach(o => o.classList.remove('selected'))
+  el.classList.add('selected')
+  el.querySelector('.q-opt-check').textContent = '✓'
+  document.querySelectorAll('#q2-options .q-opt:not(.selected) .q-opt-check').forEach(c => c.textContent = '')
+  answers.purpose = value
+  document.getElementById('q2-next').disabled = false
+}
+
+function selectQ3(el, value) {
+  document.querySelectorAll('#q3-options .q-opt').forEach(o => o.classList.remove('selected'))
+  el.classList.add('selected')
+  el.querySelector('.q-opt-check').textContent = '✓'
+  document.querySelectorAll('#q3-options .q-opt:not(.selected) .q-opt-check').forEach(c => c.textContent = '')
+  answers.duration = value
+  document.getElementById('q3-next').disabled = false
+}
+
+// ─── Route Generation ────────────────────────────────────────────
+async function generateRoute() {
+  if (!answers.industry || !answers.purpose || !answers.duration) return
+  showScreen('loading-route')
+  try {
+    const res = await fetch('/api/generate-route', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, ...answers })
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      if (res.status === 429) {
+        showError('本日の利用上限に達しました', data.message || '明日またお試しください。', '1日10名限定の体験コンテンツです。')
+      } else {
+        showError('ルート生成に失敗しました', data.error || '通信エラーが発生しました。', '再度お試しください。')
+      }
+      return
+    }
+    renderRoute(data)
+  } catch (e) {
+    showError('通信エラー', 'サーバーに接続できませんでした。', 'ページを再読み込みしてお試しください。')
+  }
+}
+
+function renderRoute(data) {
+  document.getElementById('route-title').textContent = data.routeTitle || 'あなたへのおすすめルート'
+  document.getElementById('route-summary').textContent = data.summary || ''
+  document.getElementById('route-total-time').textContent = data.totalTime || '-'
+  document.getElementById('route-booth-count').textContent = data.booths ? data.booths.length : 0
+
+  const list = document.getElementById('route-list')
+  list.innerHTML = ''
+  ;(data.booths || []).forEach(b => {
+    const el = document.createElement('div')
+    el.className = 'route-booth'
+    el.innerHTML = `
+      <div class="booth-num-badge">${b.order}</div>
+      <div class="booth-info">
+        <p class="booth-code">${b.category || b.area || ''}</p>
+        <p class="booth-name">${b.name || ''}</p>
+        <p class="booth-genre">${b.genre || ''}</p>
+        <p class="booth-reason">${b.reason || ''}</p>
+        <div class="booth-hint"><strong>TALK HINT</strong>${b.talkHint || ''}</div>
+      </div>
+    `
+    list.appendChild(el)
+  })
+  showScreen('route-result')
+}
+
+// ─── Chat ─────────────────────────────────────────────────────────
+function addAIMessage(text, isTyping = false) {
+  const container = document.getElementById('chat-messages')
+  const msg = document.createElement('div')
+  msg.className = 'msg msg-ai' + (isTyping ? ' msg-typing' : '')
+  if (isTyping) {
+    msg.id = 'typing-indicator'
+    msg.innerHTML = `<div class="msg-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`
+  } else {
+    msg.innerHTML = `<div class="msg-bubble">${escapeHtml(text).replace(/\n/g, '<br>')}</div>`
+    // ブリーフ準備完了チェック
+    if (text.includes('BRIEF_READY:true')) {
+      briefReady = true
+      const cleanText = text.replace('BRIEF_READY:true', '').trim()
+      msg.innerHTML = `<div class="msg-bubble">${escapeHtml(cleanText).replace(/\n/g, '<br>')}</div>`
+      document.getElementById('brief-ready-banner').classList.remove('hidden')
+      updateChatProgress(100)
+    }
+  }
+  container.appendChild(msg)
+  container.scrollTop = container.scrollHeight
+  return msg
+}
+
+function addUserMessage(text) {
+  const container = document.getElementById('chat-messages')
+  const msg = document.createElement('div')
+  msg.className = 'msg msg-user'
+  msg.innerHTML = `<div class="msg-bubble">${escapeHtml(text).replace(/\n/g, '<br>')}</div>`
+  container.appendChild(msg)
+  container.scrollTop = container.scrollHeight
+}
+
+function updateChatProgress(percent) {
+  document.getElementById('chat-progress').style.width = percent + '%'
+}
+
+async function sendMessage() {
+  if (isStreaming) return
+  const input = document.getElementById('chat-input')
+  const text = input.value.trim()
+  if (!text) return
+
+  input.value = ''
+  input.style.height = 'auto'
+  addUserMessage(text)
+
+  chatHistory.push({ role: 'user', content: text })
+  document.getElementById('chat-send-btn').disabled = true
+  isStreaming = true
+
+  // タイピングインジケーター
+  const typingEl = addAIMessage('', true)
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, messages: chatHistory })
+    })
+
+    if (!res.ok) {
+      typingEl.remove()
+      const data = await res.json()
+      if (res.status === 429) {
+        showError('本日の利用上限に達しました', data.message || '明日またお試しください。')
+      } else {
+        addAIMessage('エラーが発生しました。再度お試しください。')
+      }
+      return
+    }
+
+    // SSEストリーミング
+    typingEl.remove()
+    const aiMsgEl = addAIMessage('')
+    const bubbleEl = aiMsgEl.querySelector('.msg-bubble')
+    let fullText = ''
+
+    const reader = res.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop()
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        try {
+          const json = JSON.parse(line.slice(6))
+          if (json.text) {
+            fullText += json.text
+            const displayText = fullText.replace('BRIEF_READY:true', '').trim()
+            bubbleEl.innerHTML = escapeHtml(displayText).replace(/\n/g, '<br>')
+            document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight
+          }
+          if (json.done) {
+            chatHistory.push({ role: 'assistant', content: fullText })
+            if (fullText.includes('BRIEF_READY:true')) {
+              briefReady = true
+              const cleanText = fullText.replace('BRIEF_READY:true', '').trim()
+              bubbleEl.innerHTML = escapeHtml(cleanText).replace(/\n/g, '<br>')
+              document.getElementById('brief-ready-banner').classList.remove('hidden')
+              updateChatProgress(100)
+            } else {
+              const progress = Math.min(90, chatHistory.filter(m => m.role === 'user').length * 15)
+              updateChatProgress(progress)
+            }
+          }
+          if (json.error) {
+            bubbleEl.innerHTML = escapeHtml(json.error)
+          }
+        } catch {}
+      }
+    }
+  } catch (e) {
+    typingEl.remove()
+    addAIMessage('通信エラーが発生しました。')
+  } finally {
+    isStreaming = false
+    document.getElementById('chat-send-btn').disabled = false
+    document.getElementById('chat-input').focus()
+  }
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault()
+    sendMessage()
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto'
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px'
+}
+
+// ─── Brief Generation ────────────────────────────────────────────
+async function generateBrief() {
+  showScreen('loading-brief')
+  try {
+    const res = await fetch('/api/generate-brief', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, messages: chatHistory })
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      if (res.status === 429) {
+        showError('本日の利用上限に達しました', data.message || '明日またお試しください。')
+      } else {
+        showError('ブリーフ生成に失敗しました', data.error || 'エラーが発生しました。')
+      }
+      return
+    }
+    renderBrief(data)
+  } catch (e) {
+    showError('通信エラー', 'サーバーに接続できませんでした。')
+  }
+}
+
+function renderBrief(data) {
+  document.getElementById('brief-project-title').textContent = data.projectTitle || 'クリエイティブブリーフ'
+
+  const content = document.getElementById('brief-result-content')
+  content.innerHTML = ''
+
+  const sections = [
+    { label: 'プロジェクト概要', value: data.overview, type: 'text' },
+    { label: 'ターゲット', value: data.target, type: 'text' },
+    { label: '目標・ゴール', value: data.goals, type: 'list' },
+    { label: 'トーン・雰囲気', value: data.tone, type: 'text' },
+    { label: '成果物・納品物', value: data.deliverables, type: 'list' },
+    { label: '参考・スタイル', value: data.references, type: 'text', skip_empty: true },
+    { label: '予算感', value: data.budget, type: 'text' },
+    { label: '納期', value: data.deadline, type: 'text' },
+    { label: '備考・その他', value: data.notes, type: 'text', skip_empty: true },
+  ]
+
+  sections.forEach(s => {
+    if (s.skip_empty && !s.value) return
+    const sec = document.createElement('div')
+    sec.className = 'brief-section'
+    sec.innerHTML = `<p class="brief-section-label">${s.label}</p>`
+
+    if (s.type === 'list' && Array.isArray(s.value)) {
+      const tagList = document.createElement('div')
+      tagList.className = 'brief-tag-list'
+      s.value.forEach(item => {
+        const tag = document.createElement('span')
+        tag.className = 'brief-tag'
+        tag.textContent = item
+        tagList.appendChild(tag)
+      })
+      sec.appendChild(tagList)
+    } else {
+      const val = document.createElement('p')
+      val.className = 'brief-section-value'
+      val.textContent = s.value || '-'
+      sec.appendChild(val)
+    }
+    content.appendChild(sec)
+  })
+
+  showScreen('brief-result')
+}
+
+function restartBrief() {
+  chatHistory = []
+  briefReady = false
+  startBrief()
+}
+
+// ─── Utils ───────────────────────────────────────────────────────
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+// ─── Init ────────────────────────────────────────────────────────
+initSession()
+</script>
+</body>
+</html>
