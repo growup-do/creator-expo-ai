@@ -40,6 +40,7 @@ async function fetchPage(page) {
       'exhibitorDescription',
       'exhibitorFilters',
       'website',
+      'organisationGuid',
     ],
   })
 
@@ -84,13 +85,22 @@ async function main() {
   console.log(`  取得完了: ${allHits.length}社`)
 
   // 整形して保存
-  const exhibitors = allHits.map((h, i) => ({
-    no: i + 1,
-    name: h.exhibitorName || h.companyName || '不明',
-    desc: (h.exhibitorDescription ?? '').replace(/\n/g, ' ').slice(0, 120),
-    sub: getSubcats(h),
-    website: h.website ?? '',
-  }))
+  const BASE_URL = 'https://www.content-tokyo.jp/tokyo/ja-jp/search/2026con0407/directory/directory-details'
+  const exhibitors = allHits.map((h, i) => {
+    const name = h.exhibitorName || h.companyName || '不明'
+    const orgGuid = h.organisationGuid ?? ''
+    const ctUrl = orgGuid
+      ? `${BASE_URL}.${encodeURIComponent(name.toLowerCase())}.${orgGuid}.html`
+      : ''
+    return {
+      no: i + 1,
+      name,
+      desc: (h.exhibitorDescription ?? '').replace(/\n/g, ' ').slice(0, 120),
+      sub: getSubcats(h),
+      website: h.website ?? '',
+      ctUrl,
+    }
+  })
 
   const output = {
     fetchedAt: new Date().toISOString(),

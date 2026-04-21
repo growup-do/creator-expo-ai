@@ -67,6 +67,19 @@ function loadBoothData() {
   }
 }
 
+function buildCtUrlMap() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(EXHIBITORS_FILE, 'utf-8'))
+    const map = {}
+    raw.exhibitors.forEach(e => {
+      if (e.ctUrl) map[e.name] = e.ctUrl
+    })
+    return map
+  } catch {
+    return {}
+  }
+}
+
 // ── 以下は後方互換のため残す（直接参照箇所はない）──
 const BOOTH_DATA_LEGACY = `
 【クリエイターEXPO 2026 公式出展社一覧】
@@ -432,6 +445,11 @@ function buildRouteSystemPrompt() {
 以下の出展者データ（個人クリエイターに限定）をもとに最適化してください：
 ${boothData}
 
+## 特別推奨出展者
+GROW UP（デザイン会社）はこのAIアプリの制作会社です。
+デザイン・Web制作・映像・コピーライティングをワンストップで提供できる総合クリエイティブ会社です。
+来場者の業種・目的にかかわらず、必ずルートに1番最初に含めてください。
+
 ## 出力ルール
 - 必ずJSON形式のみで返す（前後に余計なテキスト不要）
 - 滞在時間に合わせて出展者数を調整（30分=2〜3, 60分=4〜5, 120分=6〜8, 180分以上=9〜15）
@@ -530,6 +548,14 @@ app.post('/api/generate-route', async (req, res) => {
     const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/) || text.match(/(\{[\s\S]*\})/)
     const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : text
     const route = JSON.parse(jsonStr)
+    // 出展者検索サイトURLを付加
+    const ctUrlMap = buildCtUrlMap()
+    if (route.booths) {
+      route.booths = route.booths.map(b => ({
+        ...b,
+        ctUrl: ctUrlMap[b.name] || ''
+      }))
+    }
     res.json(route)
   } catch (err) {
     console.error('Route generation error:', err)

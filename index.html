@@ -58,6 +58,7 @@
     }
 
     header svg { height: 22px; width: auto; }
+    header a.logo-link { display: inline-flex; align-items: center; }
 
     .header-badge {
       background: var(--yellow-dim);
@@ -230,10 +231,28 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      margin-bottom: 24px;
     }
 
     .q-back:hover { color: var(--text-primary); }
+
+    .q-nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .btn-top-link {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 11px;
+      cursor: pointer;
+      padding: 0;
+      letter-spacing: 0.08em;
+    }
+
+    .btn-top-link:hover { color: var(--yellow); }
 
     .q-label {
       font-size: 11px;
@@ -468,6 +487,16 @@
     }
 
     .booth-hint strong { color: var(--yellow); font-size: 10px; display: block; margin-bottom: 2px; letter-spacing: 0.08em; }
+
+    .booth-ct-link {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--yellow);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+    }
+    .booth-ct-link:hover { text-decoration: underline; }
 
     .result-actions {
       padding: 16px 20px 32px;
@@ -769,7 +798,9 @@
 <body>
 <div class="app">
   <header>
+    <a href="https://growup-do.com" target="_blank" rel="noopener" class="logo-link">
     <svg width="207" height="43" viewBox="0 0 207 43" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#h1)"><path d="M73.4754 30.7195C71.4673 32.7804 69.0988 33.5532 66.4471 33.5532C63.7954 33.5532 61.4784 32.5743 59.7277 30.8226C57.2047 28.298 57.282 25.181 57.282 20.8789C57.282 16.5769 57.2047 13.4599 59.7277 10.9353C61.4784 9.18359 63.6409 8.20468 66.4471 8.20468C72.2139 8.20468 75.1488 11.9915 75.8182 16.1905H70.9267C70.3603 13.8463 68.9443 12.5582 66.4471 12.5582C65.1084 12.5582 64.0271 13.0735 63.332 13.8978C62.3794 14.954 62.1477 16.1132 62.1477 20.9047C62.1477 25.6962 62.4052 26.8812 63.332 27.9374C64.0271 28.736 65.1084 29.2254 66.4471 29.2254C67.9145 29.2254 69.0988 28.7102 69.9226 27.8343C70.7207 26.9327 71.0554 25.7992 71.0554 24.5112V23.5581H66.4728V19.4879H75.8954V23.1459C75.8954 26.7524 75.2775 28.9163 73.5269 30.7453L73.4754 30.7195Z" fill="white"/><path d="M94.0197 33.3471L89.154 23.4035H85.6527V33.3471H80.7869V8.41074H90.5442C95.6159 8.41074 98.628 11.8884 98.628 16.0359C98.628 19.5394 96.4912 21.7033 94.0712 22.5791L99.6321 33.3213H93.994L94.0197 33.3471ZM90.2352 12.7385H85.6527V19.3333H90.2352C92.372 19.3333 93.7623 17.968 93.7623 16.0359C93.7623 14.1039 92.372 12.7385 90.2352 12.7385Z" fill="white"/><path d="M118.76 30.8226C117.01 32.5743 114.873 33.5532 112.041 33.5532C109.209 33.5532 107.046 32.5743 105.296 30.8226C102.773 28.298 102.85 25.181 102.85 20.879C102.85 16.5769 102.773 13.4599 105.296 10.9353C107.046 9.1836 109.209 8.2047 112.041 8.2047C114.873 8.2047 117.01 9.1836 118.76 10.9353C121.283 13.4599 121.232 16.5769 121.232 20.879C121.232 25.181 121.257 28.298 118.76 30.8226ZM115.156 13.8721C114.461 13.0735 113.38 12.5325 112.041 12.5325C110.702 12.5325 109.595 13.0477 108.9 13.8721C107.947 14.9282 107.716 16.0875 107.716 20.879C107.716 25.6705 107.947 26.8297 108.9 27.8859C109.595 28.6845 110.728 29.2254 112.041 29.2254C113.354 29.2254 114.461 28.7102 115.156 27.8859C116.108 26.8297 116.366 25.6705 116.366 20.879C116.366 16.0875 116.083 14.9282 115.156 13.8721Z" fill="white"/><path d="M147.466 33.3471H143.398L138.815 18.2256L134.233 33.3471H130.165L123.523 8.41074H128.595L132.456 24.1248L137.013 8.41074H140.643L145.2 24.1248L149.088 8.41074H154.159L147.466 33.3471Z" fill="white"/><path d="M174.189 33.5532C169.091 33.5532 165.023 30.0755 165.023 24.7945V8.41074H169.889V24.6142C169.889 27.4994 171.563 29.1996 174.189 29.1996C176.815 29.1996 178.539 27.4737 178.539 24.6142V8.41074H183.379V24.7945C183.379 30.0755 179.312 33.5532 174.214 33.5532H174.189Z" fill="white"/><path d="M198.44 23.9444H193.652V33.3213H188.786V8.41074H198.44C203.589 8.41074 206.678 11.94 206.678 16.1905C206.678 20.441 203.589 23.9702 198.44 23.9702V23.9444ZM198.183 12.7385H193.626V19.5651H198.183C200.397 19.5651 201.787 18.1998 201.787 16.1647C201.787 14.1296 200.397 12.7385 198.183 12.7385Z" fill="white"/><path d="M42.7877 5.73165C42.7877 2.58885 40.239 0.0643005 37.1239 0.0643005C34.0087 0.0643005 31.46 2.61461 31.46 5.73165C31.46 8.8487 34.0087 11.399 37.1239 11.399C40.239 11.399 42.7877 8.8487 42.7877 5.73165Z" fill="white"/><path d="M42.7878 21.4715C42.7878 18.3287 40.2391 15.7784 37.1239 15.7784C34.0088 15.7784 31.4601 18.3287 31.4601 21.4715C31.4601 24.6143 34.0088 27.1388 37.1239 27.1388C40.2391 27.1388 42.7878 24.5885 42.7878 21.4715Z" fill="white"/><path d="M27.0835 5.73165C27.0835 2.58885 24.5348 0.0643005 21.4197 0.0643005C18.3046 0.0643005 15.7558 2.61461 15.7558 5.73165C15.7558 8.8487 18.2788 11.399 21.4197 11.399C24.5605 11.399 27.0835 8.8487 27.0835 5.73165Z" fill="white"/><path d="M27.0835 21.4715C27.0835 18.3287 24.5348 15.7784 21.4197 15.7784C18.3046 15.7784 15.7559 18.3287 15.7559 21.4715C15.7559 24.6143 18.2788 27.1388 21.4197 27.1388C24.5605 27.1388 27.0835 24.5885 27.0835 21.4715Z" fill="#FFF100"/><path d="M11.3535 21.4715C11.3535 18.3287 8.80475 15.7784 5.68964 15.7784C2.57453 15.7784 6.10352e-05 18.3287 6.10352e-05 21.4715C6.10352e-05 24.6143 2.54879 27.1388 5.68964 27.1388C8.8305 27.1388 11.3535 24.5885 11.3535 21.4715Z" fill="white"/><path d="M11.3535 37.2112C11.3535 34.0684 8.80481 31.5181 5.6897 31.5181C2.57459 31.5181 0.00012207 34.0684 0.00012207 37.2112C0.00012207 40.354 2.54885 42.8786 5.6897 42.8786C8.83056 42.8786 11.3535 40.3283 11.3535 37.2112Z" fill="white"/></g><defs><clipPath id="h1"><rect width="207" height="42.8786" fill="white"/></clipPath></defs></svg>
+    </a>
     <span class="header-badge">AI × クリエイターEXPO</span>
   </header>
 
@@ -806,7 +837,9 @@
         <div class="q-progress-dot"></div>
         <div class="q-progress-dot"></div>
       </div>
-      <button class="q-back" onclick="showScreen('top')">← 戻る</button>
+      <div class="q-nav-row">
+        <button class="q-back" onclick="showScreen('top')">← 戻る</button>
+      </div>
       <p class="q-label">Question 1/3</p>
       <h2 class="q-title">あなたの業種は？</h2>
     </div>
@@ -853,7 +886,10 @@
         <div class="q-progress-dot active"></div>
         <div class="q-progress-dot"></div>
       </div>
-      <button class="q-back" onclick="showScreen('q1')">← 戻る</button>
+      <div class="q-nav-row">
+        <button class="q-back" onclick="showScreen('q1')">← 戻る</button>
+        <button class="btn-top-link" onclick="showScreen('top')">TOP に戻る</button>
+      </div>
       <p class="q-label">Question 2/3</p>
       <h2 class="q-title">今日の目的は？</h2>
     </div>
@@ -896,7 +932,10 @@
         <div class="q-progress-dot active"></div>
         <div class="q-progress-dot active"></div>
       </div>
-      <button class="q-back" onclick="showScreen('q2')">← 戻る</button>
+      <div class="q-nav-row">
+        <button class="q-back" onclick="showScreen('q2')">← 戻る</button>
+        <button class="btn-top-link" onclick="showScreen('top')">TOP に戻る</button>
+      </div>
       <p class="q-label">Question 3/3</p>
       <h2 class="q-title">滞在予定時間は？</h2>
     </div>
@@ -961,6 +1000,7 @@
           <p class="chat-title">AIクリエイティブブリーフ</p>
           <p class="chat-sub">チャットで話すだけでブリーフを作成</p>
         </div>
+        <button class="btn-top-link" onclick="showScreen('top')" style="margin-left:auto;flex-shrink:0;">TOP に戻る</button>
       </div>
       <div class="chat-progress-bar">
         <div class="chat-progress-fill" id="chat-progress" style="width:0%"></div>
@@ -1167,6 +1207,7 @@ function renderRoute(data) {
         <p class="booth-genre">${b.genre || ''}</p>
         <p class="booth-reason">${b.reason || ''}</p>
         <div class="booth-hint"><strong>TALK HINT</strong>${b.talkHint || ''}</div>
+        ${b.ctUrl ? `<a href="${b.ctUrl}" target="_blank" rel="noopener" class="booth-ct-link">クリエポ出展者ページ →</a>` : ''}
       </div>
     `
     list.appendChild(el)
