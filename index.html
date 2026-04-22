@@ -1754,17 +1754,20 @@ function restartBrief() {
 
 // ─── Map View ──────────────────────────────────────────────────────
 // グリッド定義（行: A〜T, 列: 0〜46）
-const GRID_ROWS = ['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','T']
+// 列レター（左→右の順）。T は下部の横列として別扱い
+const GRID_COLS = ['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q']
 const MAP_CONFIG = {
-  // 画像が存在するときのグリッド設定（要キャリブレーション）
-  imageWidth: 3600,
-  imageHeight: 480,
-  gridStartX: 140,   // グリッド開始X座標
-  gridStartY: 60,    // グリッド開始Y座標
-  gridEndX: 3560,    // グリッド終了X座標
-  gridEndY: 440,     // グリッド終了Y座標
-  colCount: 47,      // 列数 (0〜46)
-  rowCount: 16,      // 行数
+  // 2026年新マップ (1191×842 PDF→JPG変換)
+  // 列レター（A〜Q）が左→右のX軸、ブース番号（0〜46）が上→下のY軸
+  imageWidth: 1191,
+  imageHeight: 842,
+  gridStartX: 32,    // 列Aの左端
+  gridStartY: 50,    // ブース番号0行の上端
+  gridEndX:   1162,  // 列Qの右端
+  gridEndY:   295,   // ブース番号46行の下端
+  colLetters: 15,    // A〜Q = 15列
+  rowNums:    47,    // 番号 0〜46 = 47行
+  tRowY:      312,   // T列（下部横列）のY中心
 }
 const MARKER_COLORS = [
   '#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#FF6BEB',
@@ -1778,15 +1781,27 @@ function standToXY(stand, config) {
   if (!stand) return null
   const parts = stand.split('-')
   if (parts.length !== 2) return null
-  const rowLetter = parts[0]
-  const colNum = parseInt(parts[1])
-  const rowIndex = GRID_ROWS.indexOf(rowLetter)
-  if (rowIndex < 0 || isNaN(colNum)) return null
-  const cellW = (config.gridEndX - config.gridStartX) / config.colCount
-  const cellH = (config.gridEndY - config.gridStartY) / config.rowCount
-  const x = config.gridStartX + colNum * cellW + cellW / 2
-  const y = config.gridStartY + rowIndex * cellH + cellH / 2
-  return { x, y }
+  const letter = parts[0]
+  const num = parseInt(parts[1])
+  if (isNaN(num)) return null
+
+  // T列は下部の横列：番号がX方向
+  if (letter === 'T') {
+    const cellW = (config.gridEndX - config.gridStartX) / config.rowNums
+    return {
+      x: config.gridStartX + num * cellW + cellW / 2,
+      y: config.tRowY
+    }
+  }
+
+  const colIndex = GRID_COLS.indexOf(letter)
+  if (colIndex < 0) return null
+  const cellW = (config.gridEndX - config.gridStartX) / config.colLetters
+  const cellH = (config.gridEndY - config.gridStartY) / config.rowNums
+  return {
+    x: config.gridStartX + colIndex * cellW + cellW / 2,
+    y: config.gridStartY + num * cellH + cellH / 2
+  }
 }
 
 function showMapView() {
@@ -1812,23 +1827,23 @@ function showMapView() {
     ctx.fillRect(0, 0, cfg.imageWidth, cfg.imageHeight)
     ctx.strokeStyle = 'rgba(60,60,120,0.3)'
     ctx.lineWidth = 1
-    // グリッド線
-    const cellW = (cfg.gridEndX - cfg.gridStartX) / cfg.colCount
-    const cellH = (cfg.gridEndY - cfg.gridStartY) / cfg.rowCount
-    for (let c = 0; c <= cfg.colCount; c++) {
+    // グリッド線（X=列レター, Y=ブース番号）
+    const cellW = (cfg.gridEndX - cfg.gridStartX) / cfg.colLetters
+    const cellH = (cfg.gridEndY - cfg.gridStartY) / cfg.rowNums
+    for (let c = 0; c <= cfg.colLetters; c++) {
       const x = cfg.gridStartX + c * cellW
       ctx.beginPath(); ctx.moveTo(x, cfg.gridStartY); ctx.lineTo(x, cfg.gridEndY); ctx.stroke()
     }
-    for (let r = 0; r <= cfg.rowCount; r++) {
+    for (let r = 0; r <= cfg.rowNums; r++) {
       const y = cfg.gridStartY + r * cellH
       ctx.beginPath(); ctx.moveTo(cfg.gridStartX, y); ctx.lineTo(cfg.gridEndX, y); ctx.stroke()
     }
-    // 行ラベル
-    ctx.fillStyle = 'rgba(200,200,255,0.5)'
-    ctx.font = `bold ${Math.round(cellH * 0.5)}px sans-serif`
+    // 列ラベル（上部）
+    ctx.fillStyle = 'rgba(200,200,255,0.7)'
+    ctx.font = `bold ${Math.round(cellW * 0.4)}px sans-serif`
     ctx.textAlign = 'center'
-    GRID_ROWS.forEach((r, i) => {
-      ctx.fillText(r, cfg.gridStartX - cellW * 0.6, cfg.gridStartY + i * cellH + cellH * 0.65)
+    GRID_COLS.forEach((c, i) => {
+      ctx.fillText(c, cfg.gridStartX + i * cellW + cellW / 2, cfg.gridStartY - 6)
     })
     drawMarkers(ctx, booths, cfg)
     showScreen('map')
