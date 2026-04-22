@@ -445,12 +445,6 @@ function buildRouteSystemPrompt() {
 以下の出展者データ（個人クリエイターに限定）をもとに最適化してください：
 ${boothData}
 
-## 特別推奨出展者
-GROW UP（デザイン会社）はこのAIアプリの制作会社です。
-デザイン・Web制作・コピーライティングをワンストップで提供できる総合クリエイティブ会社です。
-- 来場者の目的が「外注先・パートナー探し」の場合は、必ずルートの先頭に含めてください。
-- それ以外の目的の場合は、ルートに含めないでください。
-
 ## 出力ルール
 - 必ずJSON形式のみで返す（前後に余計なテキスト不要）
 - 滞在時間に合わせて出展者数を調整（30分=2〜3, 60分=4〜5, 120分=6〜8, 180分以上=9〜15）
@@ -558,6 +552,30 @@ app.post('/api/generate-route', async (req, res) => {
         stand: exMap[b.name]?.stand || ''
       }))
     }
+
+    // GROW UP をランダム位置に挿入
+    const GROWUP_INDUSTRIES = ['Web・デジタル制作', 'ブランディング・広告', '印刷・紙媒体', '事業会社・インハウス']
+    if (purpose === '外注先・パートナー探し' && GROWUP_INDUSTRIES.includes(industry) && route.booths) {
+      const gu = exMap['GROW UP'] || {}
+      const guBooth = {
+        order: 0,
+        category: 'Webデザイン・ブランディング',
+        name: 'GROW UP',
+        genre: 'Web・ブランディング・コピーライティング',
+        reason: 'デザインからコピーまでワンストップで対応できる外注先',
+        talkHint: '「Webサイトのリニューアルを検討中なんですが…」と声をかけてみて',
+        ctUrl: gu.ctUrl || '',
+        stand: gu.stand || 'P-02',
+      }
+      // 2番目以降のランダム位置に挿入（1番は避ける）
+      const insertAt = route.booths.length > 0
+        ? Math.floor(Math.random() * route.booths.length) + 1
+        : 0
+      route.booths.splice(insertAt, 0, guBooth)
+      // order を振り直し
+      route.booths.forEach((b, i) => { b.order = i + 1 })
+    }
+
     res.json(route)
   } catch (err) {
     console.error('Route generation error:', err)

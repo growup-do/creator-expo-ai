@@ -1265,51 +1265,58 @@
       // Aspect-correct UVs
       uv.x *= u_resolution.x / u_resolution.y;
 
-      float t = u_time * 0.05;
+      float t = u_time * 0.06;
 
       // Domain warping — two layers
       vec2 q = vec2(
-        fbm(uv * 1.2 + vec2(0.0, 0.0) + t * 0.12),
-        fbm(uv * 1.2 + vec2(5.2,  1.3) + t * 0.10)
+        fbm(uv * 1.2 + vec2(0.0, 0.0) + t * 0.14),
+        fbm(uv * 1.2 + vec2(5.2,  1.3) + t * 0.11)
       );
 
       vec2 r = vec2(
-        fbm(uv * 0.9 + 1.4 * q + vec2(1.7,  9.2) + t * 0.08),
-        fbm(uv * 0.9 + 1.4 * q + vec2(8.3,  2.8) + t * 0.07)
+        fbm(uv * 0.9 + 1.5 * q + vec2(1.7,  9.2) + t * 0.09),
+        fbm(uv * 0.9 + 1.5 * q + vec2(8.3,  2.8) + t * 0.08)
       );
 
-      float f = fbm(uv + 2.0 * r + t * 0.04);
+      float f  = fbm(uv + 2.2 * r + t * 0.05);
+      float f2 = fbm(uv * 1.8 + r + vec2(3.1, 7.4) + t * 0.07);
 
-      // ── Color palette (zeroten.jp: dark navy → cyan → indigo/violet) ──
-      // Near-black navy base
-      vec3 col = vec3(0.003, 0.003, 0.018);
+      // ── Color palette: high-contrast multi-color aurora ──
+      // Pure black base
+      vec3 col = vec3(0.0, 0.0, 0.0);
 
-      // Deep indigo layer
+      // Deep navy zone
       col = mix(col,
-        vec3(0.01, 0.02, 0.12),
-        clamp(f * 2.0, 0.0, 1.0));
+        vec3(0.0, 0.02, 0.15),
+        clamp(f * 2.5, 0.0, 1.0));
 
-      // Cyan-blue mid
+      // Cobalt blue band
       col = mix(col,
-        vec3(0.0, 0.18, 0.45),
-        clamp(length(q) * 0.9, 0.0, 1.0));
+        vec3(0.0, 0.12, 0.55),
+        clamp(length(q) * 1.1, 0.0, 1.0));
 
-      // Blue-violet accent from r
+      // Royal purple from r
       col = mix(col,
-        vec3(0.05, 0.05, 0.40),
-        clamp(r.x * 1.1, 0.0, 1.0));
+        vec3(0.20, 0.0, 0.55),
+        clamp(r.x * 1.3, 0.0, 1.0));
 
-      // Bright cyan glow on f peaks
-      col += 0.22 * vec3(0.0, 0.65, 1.0) * pow(clamp(f, 0.0, 1.0), 2.2);
+      // Magenta/hot-pink streak
+      col += 0.30 * vec3(0.9, 0.0, 0.55) * pow(clamp(f2 * 1.8 - 0.4, 0.0, 1.0), 2.0);
 
-      // Electric indigo/violet shimmer
-      col += 0.10 * vec3(0.25, 0.0, 0.90) * pow(clamp(f * r.y, 0.0, 1.0), 1.8);
+      // Electric cyan burst
+      col += 0.45 * vec3(0.0, 0.80, 1.0) * pow(clamp(f, 0.0, 1.0), 2.0);
 
-      // Teal highlight on very bright spots
-      col += 0.06 * vec3(0.0, 0.85, 0.75) * pow(clamp(f * 3.0 - 1.8, 0.0, 1.0), 2.5);
+      // Emerald green flash
+      col += 0.25 * vec3(0.0, 0.95, 0.45) * pow(clamp(f2 * r.y * 2.5, 0.0, 1.0), 2.5);
 
-      // Soft white core at absolute peaks
-      col += 0.04 * vec3(0.7, 0.9, 1.0) * pow(clamp(f * 4.0 - 2.5, 0.0, 1.0), 3.0);
+      // Violet shimmer
+      col += 0.20 * vec3(0.55, 0.0, 1.0) * pow(clamp(f * r.y * 2.0, 0.0, 1.0), 1.8);
+
+      // Orange-gold accent (rare, sharp peaks)
+      col += 0.18 * vec3(1.0, 0.55, 0.0) * pow(clamp(f * f2 * 4.0 - 1.5, 0.0, 1.0), 3.0);
+
+      // Bright white core at absolute peaks
+      col += 0.20 * vec3(0.85, 0.95, 1.0) * pow(clamp(f * 3.5 - 2.0, 0.0, 1.0), 3.0);
 
       gl_FragColor = vec4(col, 1.0);
     }
