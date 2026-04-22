@@ -17,8 +17,8 @@
       --border: rgba(60, 60, 120, 0.4);
       --border-yellow: rgba(255, 241, 0, 0.4);
       --text-primary: #ffffff;
-      --text-secondary: #aaaacc;
-      --text-muted: #7777aa;
+      --text-secondary: #e0e0f0;
+      --text-muted: #c0c0dd;
       --radius: 12px;
       --radius-sm: 8px;
     }
@@ -39,47 +39,93 @@
       will-change: transform;
     }
 
+    /* ── 超大型 blob (200%相当) ── */
     .ai-blob-1 {
-      width: 560px; height: 520px;
-      background: radial-gradient(ellipse, rgba(10, 30, 200, 0.8) 0%, rgba(0, 80, 180, 0.4) 40%, transparent 70%);
-      top: -180px; left: -160px;
-      animation: blob1 18s ease-in-out infinite alternate;
+      width: 720px; height: 680px;
+      background: radial-gradient(ellipse, rgba(10, 20, 200, 0.7) 0%, rgba(0, 60, 180, 0.3) 45%, transparent 70%);
+      top: -280px; left: -240px;
+      animation: blob1 22s ease-in-out infinite alternate;
     }
     .ai-blob-2 {
-      width: 420px; height: 380px;
-      background: radial-gradient(ellipse, rgba(50, 0, 180, 0.7) 0%, rgba(100, 20, 220, 0.3) 45%, transparent 70%);
-      top: 20%; right: -140px;
-      animation: blob2 22s ease-in-out infinite alternate;
+      width: 660px; height: 600px;
+      background: radial-gradient(ellipse, rgba(0, 100, 220, 0.65) 0%, rgba(0, 140, 255, 0.25) 40%, transparent 70%);
+      bottom: -200px; right: -220px;
+      animation: blob2 26s ease-in-out infinite alternate;
     }
+    /* ── 大型 blob (150%相当) ── */
     .ai-blob-3 {
-      width: 380px; height: 480px;
-      background: radial-gradient(ellipse, rgba(0, 140, 255, 0.65) 0%, rgba(0, 100, 200, 0.3) 40%, transparent 70%);
-      bottom: 0%; left: -100px;
-      animation: blob3 20s ease-in-out infinite alternate;
+      width: 520px; height: 480px;
+      background: radial-gradient(ellipse, rgba(50, 0, 190, 0.7) 0%, rgba(80, 20, 220, 0.3) 45%, transparent 70%);
+      top: 15%; right: -180px;
+      animation: blob3 19s ease-in-out infinite alternate;
     }
     .ai-blob-4 {
-      width: 300px; height: 300px;
-      background: radial-gradient(ellipse, rgba(100, 200, 255, 0.6) 0%, rgba(60, 160, 240, 0.25) 50%, transparent 70%);
-      top: 38%; left: 30%;
-      animation: blob4 25s ease-in-out infinite alternate;
+      width: 480px; height: 540px;
+      background: radial-gradient(ellipse, rgba(0, 60, 160, 0.6) 0%, rgba(10, 30, 140, 0.25) 45%, transparent 70%);
+      bottom: 5%; left: -140px;
+      animation: blob4 24s ease-in-out infinite alternate;
     }
     .ai-blob-5 {
-      width: 340px; height: 220px;
-      background: radial-gradient(ellipse, rgba(0, 60, 160, 0.55) 0%, rgba(20, 40, 140, 0.25) 50%, transparent 70%);
-      bottom: 25%; right: -80px;
-      animation: blob5 16s ease-in-out infinite alternate;
+      width: 500px; height: 440px;
+      background: radial-gradient(ellipse, rgba(20, 80, 240, 0.55) 0%, rgba(40, 100, 200, 0.2) 50%, transparent 70%);
+      top: 45%; left: -160px;
+      animation: blob5 21s ease-in-out infinite alternate;
     }
+    /* ── 中型 blob (100%相当) ── */
     .ai-blob-6 {
-      width: 260px; height: 260px;
-      background: radial-gradient(ellipse, rgba(80, 180, 240, 0.5) 0%, rgba(40, 140, 220, 0.2) 50%, transparent 70%);
-      top: 60%; left: 10%;
+      width: 360px; height: 340px;
+      background: radial-gradient(ellipse, rgba(120, 200, 255, 0.6) 0%, rgba(80, 170, 240, 0.25) 50%, transparent 70%);
+      top: 30%; left: 25%;
       animation: blob6 28s ease-in-out infinite alternate;
     }
     .ai-blob-7 {
-      width: 200px; height: 320px;
-      background: radial-gradient(ellipse, rgba(30, 0, 140, 0.6) 0%, rgba(60, 20, 180, 0.2) 50%, transparent 70%);
-      top: 5%; right: 20%;
-      animation: blob7 19s ease-in-out infinite alternate;
+      width: 320px; height: 380px;
+      background: radial-gradient(ellipse, rgba(0, 160, 255, 0.55) 0%, rgba(0, 120, 220, 0.2) 50%, transparent 70%);
+      top: 55%; right: 10%;
+      animation: blob7 17s ease-in-out infinite alternate;
+    }
+    .ai-blob-8 {
+      width: 340px; height: 300px;
+      background: radial-gradient(ellipse, rgba(60, 0, 200, 0.6) 0%, rgba(100, 30, 230, 0.2) 50%, transparent 70%);
+      top: 5%; right: 15%;
+      animation: blob8 23s ease-in-out infinite alternate;
+    }
+    /* ── 小型 blob (70%相当) ── */
+    .ai-blob-9 {
+      width: 220px; height: 240px;
+      background: radial-gradient(ellipse, rgba(80, 200, 255, 0.7) 0%, rgba(60, 180, 240, 0.3) 50%, transparent 70%);
+      top: 20%; left: 40%;
+      animation: blob9 15s ease-in-out infinite alternate;
+    }
+    .ai-blob-10 {
+      width: 180px; height: 200px;
+      background: radial-gradient(ellipse, rgba(0, 80, 200, 0.65) 0%, rgba(20, 60, 180, 0.25) 50%, transparent 70%);
+      bottom: 35%; right: 5%;
+      animation: blob10 20s ease-in-out infinite alternate;
+    }
+    .ai-blob-11 {
+      width: 200px; height: 160px;
+      background: radial-gradient(ellipse, rgba(140, 210, 255, 0.65) 0%, rgba(100, 180, 240, 0.25) 50%, transparent 70%);
+      bottom: 15%; left: 30%;
+      animation: blob11 18s ease-in-out infinite alternate;
+    }
+    .ai-blob-12 {
+      width: 160px; height: 220px;
+      background: radial-gradient(ellipse, rgba(40, 0, 160, 0.7) 0%, rgba(70, 20, 200, 0.25) 50%, transparent 70%);
+      top: 70%; left: 55%;
+      animation: blob12 25s ease-in-out infinite alternate;
+    }
+    .ai-blob-13 {
+      width: 240px; height: 180px;
+      background: radial-gradient(ellipse, rgba(0, 120, 240, 0.6) 0%, rgba(20, 100, 200, 0.2) 50%, transparent 70%);
+      top: 80%; left: 5%;
+      animation: blob13 30s ease-in-out infinite alternate;
+    }
+    .ai-blob-14 {
+      width: 140px; height: 140px;
+      background: radial-gradient(ellipse, rgba(160, 220, 255, 0.75) 0%, rgba(120, 200, 250, 0.3) 50%, transparent 70%);
+      top: 48%; right: 30%;
+      animation: blob14 13s ease-in-out infinite alternate;
     }
 
     @keyframes blob1 {
@@ -118,8 +164,44 @@
     }
     @keyframes blob7 {
       0%   { transform: translate(0, 0) scale(1); }
-      50%  { transform: translate(80px, 160px) scale(1.4); }
-      100% { transform: translate(-40px, 80px) scale(0.8); }
+      50%  { transform: translate(-80px, -160px) scale(1.4); }
+      100% { transform: translate(40px, -80px) scale(0.8); }
+    }
+    @keyframes blob8 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(-60px, 140px) scale(1.25); }
+      100% { transform: translate(-120px, 60px) scale(0.9); }
+    }
+    @keyframes blob9 {
+      0%   { transform: translate(0, 0) scale(1); opacity: 0.8; }
+      50%  { transform: translate(-80px, 100px) scale(1.5); opacity: 1; }
+      100% { transform: translate(60px, 50px) scale(0.7); opacity: 0.6; }
+    }
+    @keyframes blob10 {
+      0%   { transform: translate(0, 0) scale(1); }
+      60%  { transform: translate(-100px, -80px) scale(1.4); }
+      100% { transform: translate(-40px, -140px) scale(0.85); }
+    }
+    @keyframes blob11 {
+      0%   { transform: translate(0, 0) scale(1); opacity: 0.7; }
+      45%  { transform: translate(80px, -60px) scale(1.6); opacity: 1; }
+      100% { transform: translate(140px, -20px) scale(0.8); opacity: 0.5; }
+    }
+    @keyframes blob12 {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(-60px, -120px) scale(1.3); }
+      100% { transform: translate(40px, -80px) scale(0.9); }
+    }
+    @keyframes blob13 {
+      0%   { transform: translate(0, 0) scale(1); opacity: 0.6; }
+      40%  { transform: translate(100px, -80px) scale(1.5); opacity: 0.9; }
+      100% { transform: translate(60px, -160px) scale(0.75); opacity: 0.5; }
+    }
+    @keyframes blob14 {
+      0%   { transform: translate(0, 0) scale(1); opacity: 0.9; }
+      33%  { transform: translate(-40px, 80px) scale(1.6); opacity: 1; }
+      66%  { transform: translate(60px, 40px) scale(0.7); opacity: 0.7; }
+      100% { transform: translate(-20px, -60px) scale(1.3); opacity: 0.85; }
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -890,7 +972,7 @@
     }
 
     footer svg { height: 18px; width: auto; opacity: 0.6; margin-bottom: 8px; }
-    footer p { font-size: 11px; color: rgba(255,255,255,0.55); line-height: 1.8; }
+    footer p { font-size: 11px; color: #ccccdd; line-height: 1.8; }
     footer a.footer-logo-link { display: inline-flex; align-items: center; opacity: 0.6; transition: opacity 0.2s; }
     footer a.footer-logo-link:hover { opacity: 1; }
     footer a.footer-logo-link svg { opacity: 1; margin-bottom: 0; }
@@ -909,6 +991,13 @@
   <div class="ai-bg-blob ai-blob-5"></div>
   <div class="ai-bg-blob ai-blob-6"></div>
   <div class="ai-bg-blob ai-blob-7"></div>
+  <div class="ai-bg-blob ai-blob-8"></div>
+  <div class="ai-bg-blob ai-blob-9"></div>
+  <div class="ai-bg-blob ai-blob-10"></div>
+  <div class="ai-bg-blob ai-blob-11"></div>
+  <div class="ai-bg-blob ai-blob-12"></div>
+  <div class="ai-bg-blob ai-blob-13"></div>
+  <div class="ai-bg-blob ai-blob-14"></div>
 </div>
 <div class="app">
   <header>
