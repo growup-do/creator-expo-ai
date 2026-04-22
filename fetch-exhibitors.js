@@ -41,6 +41,7 @@ async function fetchPage(page) {
       'exhibitorFilters',
       'website',
       'organisationGuid',
+      'standReference',
     ],
   })
 
@@ -99,6 +100,7 @@ async function main() {
       sub: getSubcats(h),
       website: h.website ?? '',
       ctUrl,
+      stand: h.standReference ?? '',
     }
   })
 

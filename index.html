@@ -646,6 +646,20 @@
       margin-bottom: 4px;
     }
 
+    .stand-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      background: rgba(255, 241, 0, 0.2);
+      border: 1px solid rgba(255, 241, 0, 0.5);
+      color: #FFF100;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+      letter-spacing: 0.05em;
+    }
+
     .booth-genre {
       font-size: 11px;
       color: var(--text-secondary);
@@ -977,6 +991,77 @@
     footer a.footer-logo-link:hover { opacity: 1; }
     footer a.footer-logo-link svg { opacity: 1; margin-bottom: 0; }
 
+    /* ── Map Screen ── */
+    .map-screen-wrap {
+      padding: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: rgba(5, 5, 20, 0.85);
+    }
+    .map-header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid rgba(60,60,120,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .map-header h2 { font-size: 16px; font-weight: 800; }
+    .map-scroll-area {
+      overflow-x: auto;
+      overflow-y: hidden;
+      flex: 1;
+      position: relative;
+      -webkit-overflow-scrolling: touch;
+      background: #000;
+    }
+    .map-canvas-wrap {
+      position: relative;
+      display: inline-block;
+    }
+    #map-canvas {
+      display: block;
+    }
+    .map-legend {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(60,60,120,0.4);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .map-legend-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+    .map-legend-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      flex-shrink: 0;
+      color: #000;
+    }
+    .map-legend-text { line-height: 1.4; }
+    .map-legend-text strong { display: block; color: #fff; }
+    .map-legend-text span { color: #c0c0dd; font-size: 11px; }
+    .map-no-image {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      color: #c0c0dd;
+      text-align: center;
+      gap: 12px;
+    }
+    .map-no-image p { font-size: 13px; line-height: 1.7; }
+
     /* ── Utilities ── */
     .hidden { display: none !important; }
   </style>
@@ -1069,6 +1154,22 @@
       </div>
       <div class="q-opt" onclick="selectQ1(this, 'フリーランス')">
         <div><p class="q-opt-text">フリーランス</p><p class="q-opt-sub">個人クリエイター、独立系デザイナー</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ1(this, '音楽・サウンド制作')">
+        <div><p class="q-opt-text">音楽・サウンド制作</p><p class="q-opt-sub">作曲、BGM、効果音、声優</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ1(this, 'ゲーム・エンタメ')">
+        <div><p class="q-opt-text">ゲーム・エンタメ</p><p class="q-opt-sub">ゲーム開発、アニメ、マンガ</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ1(this, 'PR・コンテンツマーケティング')">
+        <div><p class="q-opt-text">PR・コンテンツマーケティング</p><p class="q-opt-sub">SNS運用、記事・ライティング</p></div>
+        <div class="q-opt-check"></div>
+      </div>
+      <div class="q-opt" onclick="selectQ1(this, '建築・空間・プロダクト')">
+        <div><p class="q-opt-text">建築・空間・プロダクト</p><p class="q-opt-sub">建築、インテリア、プロダクトデザイン</p></div>
         <div class="q-opt-check"></div>
       </div>
       <div class="q-opt" onclick="selectQ1(this, 'その他')">
@@ -1189,8 +1290,25 @@
     </div>
     <div class="route-list" id="route-list"></div>
     <div class="result-actions">
-      <button class="btn-primary" onclick="startBrief()">AIブリーフ作成へ →</button>
+      <button class="btn-primary" onclick="showMapView()">📍 地図で見る</button>
+      <button class="btn-secondary" onclick="startBrief()">AIブリーフ作成へ →</button>
       <button class="btn-secondary" onclick="showScreen('top')">TOPに戻る</button>
+    </div>
+  </div>
+
+  <!-- Map View -->
+  <div id="screen-map" class="screen">
+    <div class="map-screen-wrap">
+      <div class="map-header">
+        <h2>📍 会場マップ</h2>
+        <button class="btn-top-link" onclick="showScreen('route-result')">← ルートに戻る</button>
+      </div>
+      <div class="map-scroll-area" id="map-scroll-area">
+        <div class="map-canvas-wrap" id="map-canvas-wrap">
+          <canvas id="map-canvas"></canvas>
+        </div>
+      </div>
+      <div class="map-legend" id="map-legend"></div>
     </div>
   </div>
 
@@ -1394,6 +1512,7 @@ async function generateRoute() {
 }
 
 function renderRoute(data) {
+  currentRouteBooths = data.booths || []  // ← マップ表示用に保存
   document.getElementById('route-title').textContent = data.routeTitle || 'あなたへのおすすめルート'
   document.getElementById('route-summary').textContent = data.summary || ''
   document.getElementById('route-total-time').textContent = data.totalTime || '-'
@@ -1408,7 +1527,7 @@ function renderRoute(data) {
       <div class="booth-num-badge">${b.order}</div>
       <div class="booth-info">
         <p class="booth-code">${b.category || b.area || ''}</p>
-        <p class="booth-name">${b.name || ''}</p>
+        <p class="booth-name">${b.name || ''} ${b.stand ? `<span class="stand-badge">${b.stand}</span>` : ''}</p>
         <p class="booth-genre">${b.genre || ''}</p>
         <p class="booth-reason">${b.reason || ''}</p>
         <div class="booth-hint"><strong>TALK HINT</strong>${b.talkHint || ''}</div>
@@ -1633,6 +1752,134 @@ function restartBrief() {
   chatHistory = []
   briefReady = false
   startBrief()
+}
+
+// ─── Map View ──────────────────────────────────────────────────────
+// グリッド定義（行: A〜T, 列: 0〜46）
+const GRID_ROWS = ['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','T']
+const MAP_CONFIG = {
+  // 画像が存在するときのグリッド設定（要キャリブレーション）
+  imageWidth: 3600,
+  imageHeight: 480,
+  gridStartX: 140,   // グリッド開始X座標
+  gridStartY: 60,    // グリッド開始Y座標
+  gridEndX: 3560,    // グリッド終了X座標
+  gridEndY: 440,     // グリッド終了Y座標
+  colCount: 47,      // 列数 (0〜46)
+  rowCount: 16,      // 行数
+}
+const MARKER_COLORS = [
+  '#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#FF6BEB',
+  '#FF9F45','#45FFD9','#FF45A0','#A0FF45','#FF4545',
+  '#45A0FF','#D9FF45','#FF45D9','#45FFD9','#FFD945'
+]
+
+let currentRouteBooths = []
+
+function standToXY(stand, config) {
+  if (!stand) return null
+  const parts = stand.split('-')
+  if (parts.length !== 2) return null
+  const rowLetter = parts[0]
+  const colNum = parseInt(parts[1])
+  const rowIndex = GRID_ROWS.indexOf(rowLetter)
+  if (rowIndex < 0 || isNaN(colNum)) return null
+  const cellW = (config.gridEndX - config.gridStartX) / config.colCount
+  const cellH = (config.gridEndY - config.gridStartY) / config.rowCount
+  const x = config.gridStartX + colNum * cellW + cellW / 2
+  const y = config.gridStartY + rowIndex * cellH + cellH / 2
+  return { x, y }
+}
+
+function showMapView() {
+  const booths = currentRouteBooths
+  const canvas = document.getElementById('map-canvas')
+  const legend = document.getElementById('map-legend')
+  const ctx = canvas.getContext('2d')
+  const cfg = MAP_CONFIG
+
+  canvas.width = cfg.imageWidth
+  canvas.height = cfg.imageHeight
+
+  // 画像ロード試行
+  const img = new Image()
+  img.onload = () => {
+    ctx.drawImage(img, 0, 0, cfg.imageWidth, cfg.imageHeight)
+    drawMarkers(ctx, booths, cfg)
+    showScreen('map')
+  }
+  img.onerror = () => {
+    // 画像なし: 暗い背景にグリッドを描画
+    ctx.fillStyle = '#0a0a1a'
+    ctx.fillRect(0, 0, cfg.imageWidth, cfg.imageHeight)
+    ctx.strokeStyle = 'rgba(60,60,120,0.3)'
+    ctx.lineWidth = 1
+    // グリッド線
+    const cellW = (cfg.gridEndX - cfg.gridStartX) / cfg.colCount
+    const cellH = (cfg.gridEndY - cfg.gridStartY) / cfg.rowCount
+    for (let c = 0; c <= cfg.colCount; c++) {
+      const x = cfg.gridStartX + c * cellW
+      ctx.beginPath(); ctx.moveTo(x, cfg.gridStartY); ctx.lineTo(x, cfg.gridEndY); ctx.stroke()
+    }
+    for (let r = 0; r <= cfg.rowCount; r++) {
+      const y = cfg.gridStartY + r * cellH
+      ctx.beginPath(); ctx.moveTo(cfg.gridStartX, y); ctx.lineTo(cfg.gridEndX, y); ctx.stroke()
+    }
+    // 行ラベル
+    ctx.fillStyle = 'rgba(200,200,255,0.5)'
+    ctx.font = `bold ${Math.round(cellH * 0.5)}px sans-serif`
+    ctx.textAlign = 'center'
+    GRID_ROWS.forEach((r, i) => {
+      ctx.fillText(r, cfg.gridStartX - cellW * 0.6, cfg.gridStartY + i * cellH + cellH * 0.65)
+    })
+    drawMarkers(ctx, booths, cfg)
+    showScreen('map')
+  }
+  img.src = '/venue-map.jpg'
+
+  // 凡例描画
+  legend.innerHTML = ''
+  booths.forEach((b, i) => {
+    const color = MARKER_COLORS[i % MARKER_COLORS.length]
+    const item = document.createElement('div')
+    item.className = 'map-legend-item'
+    item.innerHTML = `
+      <div class="map-legend-num" style="background:${color}">${b.order}</div>
+      <div class="map-legend-text">
+        <strong>${b.name}</strong>
+        <span>${b.stand || 'スタンド不明'} ${b.genre || ''}</span>
+      </div>`
+    legend.appendChild(item)
+  })
+}
+
+function drawMarkers(ctx, booths, cfg) {
+  const cellH = (cfg.gridEndY - cfg.gridStartY) / cfg.rowCount
+  const r = Math.max(cellH * 0.38, 14)
+  booths.forEach((b, i) => {
+    const pos = standToXY(b.stand, cfg)
+    if (!pos) return
+    const color = MARKER_COLORS[i % MARKER_COLORS.length]
+    // 影
+    ctx.shadowColor = 'rgba(0,0,0,0.7)'
+    ctx.shadowBlur = 8
+    // 円
+    ctx.beginPath()
+    ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2)
+    ctx.fillStyle = color
+    ctx.fill()
+    ctx.strokeStyle = '#fff'
+    ctx.lineWidth = 2
+    ctx.stroke()
+    ctx.shadowBlur = 0
+    // 番号
+    ctx.fillStyle = '#000'
+    ctx.font = `bold ${Math.round(r * 1.0)}px sans-serif`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(String(b.order), pos.x, pos.y)
+  })
+  ctx.textBaseline = 'alphabetic'
 }
 
 // ─── Utils ───────────────────────────────────────────────────────

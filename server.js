@@ -67,12 +67,12 @@ function loadBoothData() {
   }
 }
 
-function buildCtUrlMap() {
+function buildExhibitorMap() {
   try {
     const raw = JSON.parse(fs.readFileSync(EXHIBITORS_FILE, 'utf-8'))
     const map = {}
     raw.exhibitors.forEach(e => {
-      if (e.ctUrl) map[e.name] = e.ctUrl
+      map[e.name] = { ctUrl: e.ctUrl || '', stand: e.stand || '' }
     })
     return map
   } catch {
@@ -551,12 +551,13 @@ app.post('/api/generate-route', async (req, res) => {
     const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/) || text.match(/(\{[\s\S]*\})/)
     const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : text
     const route = JSON.parse(jsonStr)
-    // 出展者検索サイトURLを付加
-    const ctUrlMap = buildCtUrlMap()
+    // 出展者情報（URL・スタンド番号）を付加
+    const exMap = buildExhibitorMap()
     if (route.booths) {
       route.booths = route.booths.map(b => ({
         ...b,
-        ctUrl: ctUrlMap[b.name] || ''
+        ctUrl: exMap[b.name]?.ctUrl || '',
+        stand: exMap[b.name]?.stand || ''
       }))
     }
     res.json(route)
