@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>クリエイターEXPO AI | by GROW UP</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     :root {
       --yellow: #FFF100;
@@ -1754,21 +1755,31 @@ function restartBrief() {
 
 // ─── Map View ──────────────────────────────────────────────────────
 // グリッド定義（行: A〜T, 列: 0〜46）
-// 列レター（左→右の順）。T は下部の横列として別扱い
-const GRID_COLS = ['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q']
-const MAP_CONFIG = {
-  // 2026年新マップ (1191×842 PDF→JPG変換)
-  // 列レター（A〜Q）が左→右のX軸、ブース番号（0〜46）が上→下のY軸
-  imageWidth: 1191,
-  imageHeight: 842,
-  gridStartX: 32,    // 列Aの左端
-  gridStartY: 50,    // ブース番号0行の上端
-  gridEndX:   1162,  // 列Qの右端
-  gridEndY:   295,   // ブース番号46行の下端
-  colLetters: 15,    // A〜Q = 15列
-  rowNums:    47,    // 番号 0〜46 = 47行
-  tRowY:      312,   // T列（下部横列）のY中心
+// 画像サイズ (1191×842, scale = 1191/2481 ≈ 0.480)
+const MAP_IMG = { w: 1191, h: 842 }
+
+// 各列の実座標（2481px原寸からスケール換算）
+// A = 上部横列（数字→X）, B〜Q = 縦列（数字→Y）, T = 下部横列（数字→X）
+const COLUMN_INFO = {
+  'A': { type:'h', y:81,  x0:30,  x1:1162 },
+  'B': { type:'v', x:161, y0:121, y1:276  },
+  'C': { type:'v', x:242, y0:121, y1:276  },
+  'D': { type:'v', x:315, y0:121, y1:276  },
+  'E': { type:'v', x:388, y0:121, y1:276  },
+  'F': { type:'v', x:461, y0:121, y1:276  },
+  'G': { type:'v', x:542, y0:121, y1:276  },
+  'H': { type:'v', x:614, y0:121, y1:276  },
+  'J': { type:'v', x:684, y0:121, y1:276  },
+  'K': { type:'v', x:754, y0:121, y1:276  },
+  'L': { type:'v', x:823, y0:121, y1:276  },
+  'M': { type:'v', x:893, y0:121, y1:276  },
+  'N': { type:'v', x:963, y0:121, y1:276  },
+  'P': { type:'v', x:1033,y0:121, y1:276  },
+  'Q': { type:'v', x:1119,y0:121, y1:276  },
+  'T': { type:'h', y:308, x0:30,  x1:1162 },
 }
+const MAX_BOOTH_NUM = 46
+
 const MARKER_COLORS = [
   '#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#FF6BEB',
   '#FF9F45','#45FFD9','#FF45A0','#A0FF45','#FF4545',
@@ -1777,78 +1788,27 @@ const MARKER_COLORS = [
 
 let currentRouteBooths = []
 
-function standToXY(stand, config) {
+function standToXY(stand) {
   if (!stand) return null
-  const parts = stand.split('-')
-  if (parts.length !== 2) return null
-  const letter = parts[0]
-  const num = parseInt(parts[1])
-  if (isNaN(num)) return null
-
-  // T列は下部の横列：番号がX方向
-  if (letter === 'T') {
-    const cellW = (config.gridEndX - config.gridStartX) / config.rowNums
-    return {
-      x: config.gridStartX + num * cellW + cellW / 2,
-      y: config.tRowY
-    }
+  const m = stand.match(/^([A-Z])-0*(\d+)$/)
+  if (!m) return null
+  const letter = m[1]
+  const num = parseInt(m[2])
+  const info = COLUMN_INFO[letter]
+  if (!info) return null
+  if (info.type === 'h') {
+    const t = num / MAX_BOOTH_NUM
+    return { x: info.x0 + t * (info.x1 - info.x0), y: info.y }
   }
-
-  const colIndex = GRID_COLS.indexOf(letter)
-  if (colIndex < 0) return null
-  const cellW = (config.gridEndX - config.gridStartX) / config.colLetters
-  const cellH = (config.gridEndY - config.gridStartY) / config.rowNums
-  return {
-    x: config.gridStartX + colIndex * cellW + cellW / 2,
-    y: config.gridStartY + num * cellH + cellH / 2
-  }
+  const t = num / MAX_BOOTH_NUM
+  return { x: info.x, y: info.y0 + t * (info.y1 - info.y0) }
 }
 
-function showMapView() {
+async function showMapView() {
   const booths = currentRouteBooths
   const canvas = document.getElementById('map-canvas')
   const legend = document.getElementById('map-legend')
   const ctx = canvas.getContext('2d')
-  const cfg = MAP_CONFIG
-
-  canvas.width = cfg.imageWidth
-  canvas.height = cfg.imageHeight
-
-  // 画像ロード試行
-  const img = new Image()
-  img.onload = () => {
-    ctx.drawImage(img, 0, 0, cfg.imageWidth, cfg.imageHeight)
-    drawMarkers(ctx, booths, cfg)
-    showScreen('map')
-  }
-  img.onerror = () => {
-    // 画像なし: 暗い背景にグリッドを描画
-    ctx.fillStyle = '#0a0a1a'
-    ctx.fillRect(0, 0, cfg.imageWidth, cfg.imageHeight)
-    ctx.strokeStyle = 'rgba(60,60,120,0.3)'
-    ctx.lineWidth = 1
-    // グリッド線（X=列レター, Y=ブース番号）
-    const cellW = (cfg.gridEndX - cfg.gridStartX) / cfg.colLetters
-    const cellH = (cfg.gridEndY - cfg.gridStartY) / cfg.rowNums
-    for (let c = 0; c <= cfg.colLetters; c++) {
-      const x = cfg.gridStartX + c * cellW
-      ctx.beginPath(); ctx.moveTo(x, cfg.gridStartY); ctx.lineTo(x, cfg.gridEndY); ctx.stroke()
-    }
-    for (let r = 0; r <= cfg.rowNums; r++) {
-      const y = cfg.gridStartY + r * cellH
-      ctx.beginPath(); ctx.moveTo(cfg.gridStartX, y); ctx.lineTo(cfg.gridEndX, y); ctx.stroke()
-    }
-    // 列ラベル（上部）
-    ctx.fillStyle = 'rgba(200,200,255,0.7)'
-    ctx.font = `bold ${Math.round(cellW * 0.4)}px sans-serif`
-    ctx.textAlign = 'center'
-    GRID_COLS.forEach((c, i) => {
-      ctx.fillText(c, cfg.gridStartX + i * cellW + cellW / 2, cfg.gridStartY - 6)
-    })
-    drawMarkers(ctx, booths, cfg)
-    showScreen('map')
-  }
-  img.src = '/venue-map.jpg'
 
   // 凡例描画
   legend.innerHTML = ''
@@ -1864,33 +1824,66 @@ function showMapView() {
       </div>`
     legend.appendChild(item)
   })
+
+  showScreen('map')
+
+  try {
+    // PDF.js でマップPDFを直接レンダリング
+    if (typeof pdfjsLib === 'undefined') throw new Error('pdf.js not loaded')
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+
+    const pdf  = await pdfjsLib.getDocument('/map.pdf').promise
+    const page = await pdf.getPage(1)
+
+    // コンテナ幅に合わせてスケール計算
+    const containerW = canvas.parentElement?.offsetWidth || 360
+    const baseViewport = page.getViewport({ scale: 1 })
+    const scale = containerW / baseViewport.width
+    const viewport = page.getViewport({ scale })
+
+    canvas.width  = viewport.width
+    canvas.height = viewport.height
+
+    await page.render({ canvasContext: ctx, viewport }).promise
+    drawMarkers(ctx, booths, scale)
+  } catch (err) {
+    console.warn('PDF.js fallback:', err)
+    // フォールバック: JPEG画像
+    canvas.width  = MAP_IMG.w
+    canvas.height = MAP_IMG.h
+    const img = new Image()
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, MAP_IMG.w, MAP_IMG.h)
+      drawMarkers(ctx, booths, 1)
+    }
+    img.src = '/venue-map.jpg'
+  }
 }
 
-function drawMarkers(ctx, booths, cfg) {
-  const cellH = (cfg.gridEndY - cfg.gridStartY) / cfg.rowCount
-  const r = Math.max(cellH * 0.38, 14)
+function drawMarkers(ctx, booths, scale = 1) {
+  const r = Math.max(Math.round(13 * scale), 10)
   booths.forEach((b, i) => {
-    const pos = standToXY(b.stand, cfg)
+    const pos = standToXY(b.stand)
     if (!pos) return
+    const x = pos.x * scale
+    const y = pos.y * scale
     const color = MARKER_COLORS[i % MARKER_COLORS.length]
-    // 影
-    ctx.shadowColor = 'rgba(0,0,0,0.7)'
+    ctx.shadowColor = 'rgba(0,0,0,0.8)'
     ctx.shadowBlur = 8
-    // 円
     ctx.beginPath()
-    ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2)
+    ctx.arc(x, y, r, 0, Math.PI * 2)
     ctx.fillStyle = color
     ctx.fill()
     ctx.strokeStyle = '#fff'
-    ctx.lineWidth = 2
+    ctx.lineWidth = 2.5
     ctx.stroke()
     ctx.shadowBlur = 0
-    // 番号
     ctx.fillStyle = '#000'
-    ctx.font = `bold ${Math.round(r * 1.0)}px sans-serif`
+    ctx.font = `bold ${Math.round(r * 0.9)}px sans-serif`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText(String(b.order), pos.x, pos.y)
+    ctx.fillText(String(b.order), x, y)
   })
   ctx.textBaseline = 'alphabetic'
 }
