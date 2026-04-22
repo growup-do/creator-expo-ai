@@ -1833,7 +1833,7 @@ async function showMapView() {
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
 
-    const pdf  = await pdfjsLib.getDocument('/map.pdf').promise
+    const pdf  = await pdfjsLib.getDocument({ url: '/map.pdf', cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/', cMapPacked: true }).promise
     const page = await pdf.getPage(1)
 
     // コンテナ幅に合わせてスケール計算
@@ -1857,7 +1857,7 @@ async function showMapView() {
       ctx.drawImage(img, 0, 0, MAP_IMG.w, MAP_IMG.h)
       drawMarkers(ctx, booths, 1)
     }
-    img.src = '/venue-map.jpg'
+    img.src = '/data/venue-map.jpg'
   }
 }
 
