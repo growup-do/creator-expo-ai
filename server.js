@@ -561,7 +561,7 @@ app.post('/api/session', (req, res) => {
 
 // ルート生成
 app.post('/api/generate-route', async (req, res) => {
-  const { sessionId, industry, purpose, duration } = req.body
+  const { sessionId, industry, purpose, duration, excludeNames = [] } = req.body
   if (!sessionId) return res.status(400).json({ error: 'sessionId required' })
 
   const check = checkAndRegisterSession(sessionId)
@@ -589,7 +589,7 @@ app.post('/api/generate-route', async (req, res) => {
       messages: [
         {
           role: 'user',
-          content: `業種: ${industry}\n目的: ${purpose}\n滞在時間: ${duration}\n\n上記条件に最適な回遊ルートをJSON形式で提案してください。`
+          content: `業種: ${industry}\n目的: ${purpose}\n滞在時間: ${duration}${excludeNames.length ? `\n除外する出展者（すでに訪問済みまたは不要）: ${excludeNames.join('、')}` : ''}\n\n上記条件に最適な回遊ルートをJSON形式で提案してください。除外リストの出展者は絶対に含めないこと。`
         }
       ]
     })

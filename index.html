@@ -536,6 +536,34 @@
     }
     .booth-ct-link:hover { text-decoration: underline; }
 
+    .btn-dismiss {
+      display: inline-block;
+      margin-top: 10px;
+      background: none;
+      border: 1px solid rgba(120,120,160,0.3);
+      color: var(--card-text-muted);
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .btn-dismiss:hover {
+      background: rgba(220,60,60,0.08);
+      border-color: rgba(220,60,60,0.4);
+      color: #cc3333;
+    }
+    .route-booth {
+      overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.35s ease;
+    }
+    .route-booth.dismissing {
+      max-height: 0 !important;
+      opacity: 0;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+
     .result-actions {
       padding: 16px 20px 32px;
       display: flex;
@@ -1138,6 +1166,7 @@
     </div>
     <div class="route-list" id="route-list"></div>
     <div class="result-actions">
+      <button class="btn-secondary" id="btn-regen" onclick="regenRoute()">🔄 興味ないを除いて再提案</button>
       <button class="btn-primary" onclick="showMapView()">📍 地図で見る</button>
       <button class="btn-secondary" onclick="startBrief()">AIブリーフ作成へ →</button>
       <button class="btn-secondary" onclick="showScreen('top')">TOPに戻る</button>
@@ -1530,16 +1559,44 @@ async function generateRoute() {
   }
 }
 
+const _dismissedNames = new Set()
+
+function _updateRouteCount() {
+  document.getElementById('route-booth-count').textContent = currentRouteBooths.length
+}
+
+function _renumberCards() {
+  document.querySelectorAll('#route-list .route-booth:not(.dismissing)').forEach((card, i) => {
+    const badge = card.querySelector('.booth-num-badge')
+    if (badge) badge.textContent = i + 1
+  })
+}
+
+function dismissBooth(name, cardEl) {
+  _dismissedNames.add(name)
+  currentRouteBooths = currentRouteBooths.filter(b => b.name !== name)
+  cardEl.style.maxHeight = cardEl.offsetHeight + 'px'
+  // force reflow so transition fires
+  cardEl.getBoundingClientRect()
+  cardEl.classList.add('dismissing')
+  cardEl.addEventListener('transitionend', () => {
+    cardEl.remove()
+    _renumberCards()
+    _updateRouteCount()
+  }, { once: true })
+}
+
 function renderRoute(data) {
-  currentRouteBooths = data.booths || []  // ← マップ表示用に保存
+  _dismissedNames.clear()
+  currentRouteBooths = data.booths || []
   document.getElementById('route-title').textContent = data.routeTitle || 'あなたへのおすすめルート'
   document.getElementById('route-summary').textContent = data.summary || ''
   document.getElementById('route-total-time').textContent = data.totalTime || '-'
-  document.getElementById('route-booth-count').textContent = data.booths ? data.booths.length : 0
+  document.getElementById('route-booth-count').textContent = currentRouteBooths.length
 
   const list = document.getElementById('route-list')
   list.innerHTML = ''
-  ;(data.booths || []).forEach(b => {
+  currentRouteBooths.forEach(b => {
     const el = document.createElement('div')
     el.className = 'route-booth'
     el.innerHTML = `
@@ -1553,9 +1610,35 @@ function renderRoute(data) {
         ${b.ctUrl ? `<a href="${b.ctUrl}" target="_blank" rel="noopener" class="booth-ct-link">クリエポ出展者ページ →</a>` : ''}
       </div>
     `
+    const dismissBtn = document.createElement('button')
+    dismissBtn.className = 'btn-dismiss'
+    dismissBtn.textContent = '興味ない'
+    dismissBtn.onclick = () => dismissBooth(b.name, el)
+    el.querySelector('.booth-info').appendChild(dismissBtn)
     list.appendChild(el)
   })
   showScreen('route-result')
+}
+
+async function regenRoute() {
+  if (!answers.industry || !answers.purpose || !answers.duration) return
+  const excludeNames = [..._dismissedNames]
+  showScreen('loading-route')
+  try {
+    const res = await fetch('/api/generate-route', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, ...answers, excludeNames })
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      showError('再提案に失敗しました', data.error || '通信エラーが発生しました。', '再度お試しください。')
+      return
+    }
+    renderRoute(data)
+  } catch (e) {
+    showError('通信エラー', 'サーバーに接続できませんでした。', 'ページを再読み込みしてお試しください。')
+  }
 }
 
 // ─── Chat ─────────────────────────────────────────────────────────
