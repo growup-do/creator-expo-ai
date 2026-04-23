@@ -537,16 +537,18 @@
     .booth-ct-link:hover { text-decoration: underline; }
 
     .btn-dismiss {
-      display: inline-block;
-      margin-top: 10px;
+      position: absolute;
+      top: 10px;
+      right: 10px;
       background: none;
       border: 1px solid rgba(120,120,160,0.3);
       color: var(--card-text-muted);
       font-size: 11px;
-      padding: 4px 12px;
+      padding: 3px 10px;
       border-radius: 20px;
       cursor: pointer;
       transition: background 0.2s, border-color 0.2s, color 0.2s;
+      line-height: 1.4;
     }
     .btn-dismiss:hover {
       background: rgba(220,60,60,0.08);
@@ -554,6 +556,7 @@
       color: #cc3333;
     }
     .route-booth {
+      position: relative;
       overflow: hidden;
       transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.35s ease;
     }
@@ -1614,7 +1617,7 @@ function renderRoute(data) {
     dismissBtn.className = 'btn-dismiss'
     dismissBtn.textContent = '興味ない'
     dismissBtn.onclick = () => dismissBooth(b.name, el)
-    el.querySelector('.booth-info').appendChild(dismissBtn)
+    el.appendChild(dismissBtn)
     list.appendChild(el)
   })
   showScreen('route-result')
