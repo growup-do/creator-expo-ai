@@ -111,7 +111,8 @@ function loadBoothData() {
     raw.exhibitors.forEach(e => {
       const sub   = e.sub   ? `[${e.sub}]`   : ''
       const stand = e.stand ? `[${e.stand}]` : ''
-      lines.push(`${e.no}. ${e.name} ${stand}${sub}${e.desc ? ` — ${e.desc}` : ''}`)
+      const desc  = e.desc  ? ` — ${e.desc.slice(0, 50)}` : ''
+      lines.push(`${e.no}. ${e.name} ${stand}${sub}${desc}`)
     })
     return lines.join('\n')
   } catch {
@@ -571,10 +572,13 @@ app.post('/api/generate-route', async (req, res) => {
     })
   }
 
-  try {
+  const MAX_RETRIES = 2
+  let lastErr = null
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+   try {
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+      max_tokens: 4096,
       system: [
         {
           type: 'text',
@@ -594,7 +598,15 @@ app.post('/api/generate-route', async (req, res) => {
     // JSONを抽出（```json ... ``` のコードブロックも対応）
     const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/) || text.match(/(\{[\s\S]*\})/)
     const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : text
-    const route = JSON.parse(jsonStr)
+    let route
+    try {
+      route = JSON.parse(jsonStr)
+    } catch (parseErr) {
+      console.error(`[attempt ${attempt}] JSON parse error. stop_reason=${response.stop_reason} raw_length=${text.length}`)
+      console.error('Raw response:', text.slice(0, 500))
+      lastErr = parseErr
+      continue  // retry
+    }
     // 出展者情報（URL・スタンド番号）を付加
     const exMap = buildExhibitorMap()
     if (route.booths) {
@@ -629,11 +641,15 @@ app.post('/api/generate-route', async (req, res) => {
       route.booths = sortByNearestNeighbor(route.booths)
     }
 
-    res.json(route)
-  } catch (err) {
-    console.error('Route generation error:', err)
-    res.status(500).json({ error: 'ルート生成に失敗しました。再度お試しください。' })
+    return res.json(route)
+   } catch (err) {
+    console.error(`[attempt ${attempt}] Route generation error:`, err.message)
+    lastErr = err
+   }
   }
+  // 全リトライ失敗
+  console.error('All retries failed:', lastErr)
+  res.status(500).json({ error: 'ルート生成に失敗しました。再度お試しください。' })
 })
 
 // チャット（SSEストリーミング）
