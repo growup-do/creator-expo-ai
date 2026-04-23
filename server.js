@@ -46,6 +46,57 @@ function checkAndRegisterSession(sessionId) {
   return { ok: true, count: usage[today].length }
 }
 
+// ─── 会場座標・最近傍ルートソート ──────────────────────────────
+const _COL_X = { B:84, C:154, D:224, E:294, F:365, G:444, H:504, J:567, K:628, L:690, M:751, N:823, P:929, Q:1104 }
+const _ROW_Y = { A:109, T:785 }
+const _V_BASE_Y = 547, _V_PX = 24, _H_X0 = 96, _H_SPACING = 23
+
+function standToXY(stand) {
+  if (!stand) return null
+  const m = stand.match(/^([A-Z])-0*(\d+)$/)
+  if (!m) return null
+  const [, col, numStr] = m
+  const num = parseInt(numStr)
+  if (_ROW_Y[col] !== undefined) return { x: _H_X0 + (num - 1) * _H_SPACING, y: _ROW_Y[col] }
+  if (_COL_X[col] !== undefined) {
+    const y = _V_BASE_Y - (Math.ceil(num / 2) - 1) * _V_PX
+    return { x: _COL_X[col], y: Math.max(80, Math.min(750, y)) }
+  }
+  return null
+}
+
+// 最近傍法（Nearest Neighbor）で移動距離を最小化
+function sortByNearestNeighbor(booths) {
+  const pts = booths.map(b => ({ booth: b, pos: standToXY(b.stand) }))
+  const withPos  = pts.filter(p => p.pos)
+  const withoutPos = pts.filter(p => !p.pos)
+  if (withPos.length === 0) return booths
+
+  // 最も左のブースをスタート
+  let startIdx = 0
+  withPos.forEach((p, i) => { if (p.pos.x < withPos[startIdx].pos.x) startIdx = i })
+
+  const sorted = []
+  const remaining = [...withPos]
+  let cur = remaining.splice(startIdx, 1)[0]
+  sorted.push(cur)
+
+  while (remaining.length > 0) {
+    let nearIdx = 0, nearDist = Infinity
+    remaining.forEach((p, i) => {
+      const dx = p.pos.x - cur.pos.x, dy = p.pos.y - cur.pos.y
+      const d = dx * dx + dy * dy
+      if (d < nearDist) { nearDist = d; nearIdx = i }
+    })
+    cur = remaining.splice(nearIdx, 1)[0]
+    sorted.push(cur)
+  }
+
+  return [...sorted, ...withoutPos]
+    .map(p => p.booth)
+    .map((b, i) => ({ ...b, order: i + 1 }))
+}
+
 // ─── ブースデータ（data/exhibitors.json から動的ロード）────────
 const EXHIBITORS_FILE = path.join(__dirname, 'data', 'exhibitors.json')
 
@@ -446,18 +497,10 @@ function buildRouteSystemPrompt() {
 以下の出展者データ（個人クリエイターに限定）をもとに最適化してください：
 ${boothData}
 
-## 会場レイアウト（効率ルート作成に必須）
-各出展者のスタンド番号（例: B-14）が会場内の位置を示します。
-- 横列A（上段）・T（下段）: 左から右へ番号順
-- 縦列B〜Q: 左から右の順 B→C→D→E→F→G→H→J→K→L→M→N→P→Q
-- 同じ列または隣接列を続けて案内し、会場を無駄に行き来しないこと
-- ルートはスタンド番号をもとに「左から右」または「右から左」へ一方向に進む順番で並べる
-
 ## 出力ルール
 - 必ずJSON形式のみで返す（前後に余計なテキスト不要）
 - 滞在時間に合わせて出展者数を調整（30分=2〜3, 60分=4〜5, 120分=6〜8, 180分以上=9〜15）
-- 来場者の業種・目的に最も関連性の高い出展者を優先して選ぶ
-- ブース順はスタンド列(A→B→C…Q→T)の順に移動距離が最小になるよう並べる
+- 来場者の業種・目的に最も関連性の高い出展者を選ぶ（順番はシステムが自動最適化するので気にしなくてよい）
 - 各出展者に実践的な「話しかけるヒント」を含める
 
 ## 出力フォーマット
@@ -562,14 +605,14 @@ app.post('/api/generate-route', async (req, res) => {
       }))
     }
 
-    // GROW UP をランダム位置に挿入（Claudeが出力した分は先に除去して重複防止）
+    // GROW UP をプールに追加（Claudeが出力した分は先に除去して重複防止）
     if (route.booths) {
       route.booths = route.booths.filter(b => b.name !== 'GROW UP')
     }
     const GROWUP_INDUSTRIES = ['Web・デジタル制作', 'ブランディング・広告', '印刷・紙媒体', '事業会社・インハウス']
     if (purpose === '外注先・パートナー探し' && GROWUP_INDUSTRIES.includes(industry) && route.booths) {
       const gu = exMap['GROW UP'] || {}
-      const guBooth = {
+      route.booths.push({
         order: 0,
         category: 'Webデザイン・ブランディング',
         name: 'GROW UP',
@@ -578,14 +621,12 @@ app.post('/api/generate-route', async (req, res) => {
         talkHint: '「Webサイトのリニューアルを検討中なんですが…」と声をかけてみて',
         ctUrl: gu.ctUrl || '',
         stand: gu.stand || 'P-02',
-      }
-      // 2番目以降のランダム位置に挿入（1番は避ける）
-      const insertAt = route.booths.length > 0
-        ? Math.floor(Math.random() * route.booths.length) + 1
-        : 0
-      route.booths.splice(insertAt, 0, guBooth)
-      // order を振り直し
-      route.booths.forEach((b, i) => { b.order = i + 1 })
+      })
+    }
+
+    // 座標ベースの最近傍ソートで移動効率を最大化
+    if (route.booths) {
+      route.booths = sortByNearestNeighbor(route.booths)
     }
 
     res.json(route)
