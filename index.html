@@ -1776,9 +1776,12 @@ let _imeOn = false
 document.addEventListener('DOMContentLoaded', () => {
   const ta = document.getElementById('chat-input')
   ta.addEventListener('compositionstart', () => { _imeOn = true })
-  ta.addEventListener('compositionend',   () => { setTimeout(() => { _imeOn = false }, 0) })
+  // Chrome: compositionend が keydown より先に発火するので setTimeout で遅延
+  ta.addEventListener('compositionend',   () => { setTimeout(() => { _imeOn = false }, 10) })
   ta.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey && !_imeOn) {
+    // _imeOn: Chrome対策（setTimeout遅延中はtrue）
+    // e.isComposing: Safari対策（keydownがcompositionendより先に発火）
+    if (e.key === 'Enter' && !e.shiftKey && !_imeOn && !e.isComposing) {
       e.preventDefault()
       sendMessage()
     }
