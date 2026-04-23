@@ -553,7 +553,10 @@ app.post('/api/generate-route', async (req, res) => {
       }))
     }
 
-    // GROW UP をランダム位置に挿入
+    // GROW UP をランダム位置に挿入（Claudeが出力した分は先に除去して重複防止）
+    if (route.booths) {
+      route.booths = route.booths.filter(b => b.name !== 'GROW UP')
+    }
     const GROWUP_INDUSTRIES = ['Web・デジタル制作', 'ブランディング・広告', '印刷・紙媒体', '事業会社・インハウス']
     if (purpose === '外注先・パートナー探し' && GROWUP_INDUSTRIES.includes(industry) && route.booths) {
       const gu = exMap['GROW UP'] || {}
