@@ -1217,7 +1217,7 @@
       <button class="btn-brief-generate" onclick="generateBrief()">作成する</button>
     </div>
     <div class="chat-input-area">
-      <textarea class="chat-input" id="chat-input" placeholder="メッセージを入力..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)" oncompositionstart="_imeOn=true" oncompositionend="_imeOn=false"></textarea>
+      <textarea class="chat-input" id="chat-input" placeholder="メッセージを入力..." rows="1" oninput="autoResize(this)"></textarea>
       <button class="chat-send" id="chat-send-btn" onclick="sendMessage()">↑</button>
     </div>
   </div>
@@ -1773,12 +1773,17 @@ async function sendMessage() {
 
 let _imeOn = false
 
-function handleChatKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey && !_imeOn) {
-    e.preventDefault()
-    sendMessage()
-  }
-}
+document.addEventListener('DOMContentLoaded', () => {
+  const ta = document.getElementById('chat-input')
+  ta.addEventListener('compositionstart', () => { _imeOn = true })
+  ta.addEventListener('compositionend',   () => { setTimeout(() => { _imeOn = false }, 0) })
+  ta.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && !_imeOn) {
+      e.preventDefault()
+      sendMessage()
+    }
+  })
+})
 
 function autoResize(el) {
   el.style.height = 'auto'
