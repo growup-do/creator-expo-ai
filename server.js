@@ -58,8 +58,9 @@ function loadBoothData() {
       '',
     ]
     raw.exhibitors.forEach(e => {
-      const sub = e.sub ? `[${e.sub}]` : ''
-      lines.push(`${e.no}. ${e.name} ${sub}${e.desc ? ` — ${e.desc}` : ''}`)
+      const sub   = e.sub   ? `[${e.sub}]`   : ''
+      const stand = e.stand ? `[${e.stand}]` : ''
+      lines.push(`${e.no}. ${e.name} ${stand}${sub}${e.desc ? ` — ${e.desc}` : ''}`)
     })
     return lines.join('\n')
   } catch {
@@ -445,10 +446,18 @@ function buildRouteSystemPrompt() {
 以下の出展者データ（個人クリエイターに限定）をもとに最適化してください：
 ${boothData}
 
+## 会場レイアウト（効率ルート作成に必須）
+各出展者のスタンド番号（例: B-14）が会場内の位置を示します。
+- 横列A（上段）・T（下段）: 左から右へ番号順
+- 縦列B〜Q: 左から右の順 B→C→D→E→F→G→H→J→K→L→M→N→P→Q
+- 同じ列または隣接列を続けて案内し、会場を無駄に行き来しないこと
+- ルートはスタンド番号をもとに「左から右」または「右から左」へ一方向に進む順番で並べる
+
 ## 出力ルール
 - 必ずJSON形式のみで返す（前後に余計なテキスト不要）
 - 滞在時間に合わせて出展者数を調整（30分=2〜3, 60分=4〜5, 120分=6〜8, 180分以上=9〜15）
 - 来場者の業種・目的に最も関連性の高い出展者を優先して選ぶ
+- ブース順はスタンド列(A→B→C…Q→T)の順に移動距離が最小になるよう並べる
 - 各出展者に実践的な「話しかけるヒント」を含める
 
 ## 出力フォーマット
